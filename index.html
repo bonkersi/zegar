@@ -3,208 +3,286 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zegar Odliczający | Biała Jaskółka</title>
+    <title>Odliczanie</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            background-color: #1a1a2e;
-            color: #f5f5f5;
+            background-color: #000000;
+            color: #00ff00;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1519681393784-d120267933ba?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
-            background-size: cover;
-            background-position: center;
+            font-family: 'Courier New', monospace;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 40, 0, 0.3) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 40, 0, 0.3) 0%, transparent 20%);
             padding: 20px;
+            overflow: hidden;
         }
         
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
+        /* Retro CRT monitor effect */
+        .crt-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            max-width: 800px;
+            height: 100%;
+            pointer-events: none;
+            background: 
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.03));
+            background-size: 100% 4px, 6px 100%;
+            z-index: 999;
+            animation: flicker 0.15s infinite;
         }
         
-        .logo {
-            font-size: 3.5rem;
-            margin-bottom: 10px;
-            color: #4cc9f0;
-            text-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
+        @keyframes flicker {
+            0% { opacity: 0.97; }
+            50% { opacity: 1; }
+            100% { opacity: 0.97; }
         }
         
-        .logo i {
-            margin-right: 15px;
+        /* Scan lines */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: linear-gradient(
+                to bottom,
+                transparent 50%,
+                rgba(0, 0, 0, 0.5) 50%
+            );
+            background-size: 100% 4px;
+            z-index: 998;
         }
         
-        h1 {
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1000px;
+            text-align: center;
+            border: 8px double #00ff00;
+            padding: 40px 30px;
+            background-color: rgba(0, 20, 0, 0.7);
+            box-shadow: 
+                0 0 30px rgba(0, 255, 0, 0.5),
+                inset 0 0 30px rgba(0, 255, 0, 0.2);
+            border-radius: 2px;
+        }
+        
+        .title {
             font-size: 2.8rem;
-            margin-bottom: 15px;
-            color: #f5f5f5;
+            margin-bottom: 30px;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 6px;
+            color: #00ff00;
+            text-shadow: 
+                0 0 10px #00ff00,
+                0 0 20px #00ff00;
+            animation: glitch 3s infinite;
+            position: relative;
+        }
+        
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            1% { transform: translate(-2px, 2px); }
+            2% { transform: translate(-2px, -2px); }
+            3% { transform: translate(2px, 2px); }
+            4% { transform: translate(2px, -2px); }
+            5% { transform: translate(0); }
+            100% { transform: translate(0); }
         }
         
         .subtitle {
             font-size: 1.2rem;
-            color: #b0b0b0;
-            max-width: 600px;
-            margin: 0 auto 30px;
-            line-height: 1.6;
-        }
-        
-        .countdown-container {
-            background-color: rgba(26, 26, 46, 0.8);
-            border-radius: 20px;
-            padding: 40px;
-            width: 100%;
-            max-width: 900px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(76, 201, 240, 0.2);
-            backdrop-filter: blur(10px);
-        }
-        
-        .countdown-title {
-            text-align: center;
-            font-size: 1.8rem;
-            margin-bottom: 30px;
-            color: #4cc9f0;
+            margin-bottom: 50px;
+            color: #80ff80;
+            letter-spacing: 2px;
+            opacity: 0.8;
         }
         
         .countdown {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 25px;
             margin-bottom: 40px;
+            flex-wrap: wrap;
         }
         
         .time-unit {
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: linear-gradient(145deg, #21213a, #1a1a2e);
-            border-radius: 15px;
+            background-color: rgba(0, 30, 0, 0.9);
+            border: 3px solid #00ff00;
+            border-radius: 4px;
             padding: 25px 15px;
-            min-width: 140px;
-            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3),
-                        -5px -5px 15px rgba(76, 201, 240, 0.05);
-            border: 1px solid rgba(76, 201, 240, 0.1);
+            min-width: 160px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 0 15px rgba(0, 255, 0, 0.4),
+                inset 0 0 20px rgba(0, 255, 0, 0.1);
+        }
+        
+        .time-unit:before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(45deg, 
+                transparent 30%, 
+                rgba(0, 255, 0, 0.1) 50%, 
+                transparent 70%);
+            z-index: 0;
+            animation: shine 5s infinite linear;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
         
         .time-value {
-            font-size: 3.5rem;
-            font-weight: 700;
-            color: #4cc9f0;
-            text-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
+            font-size: 4.5rem;
+            font-weight: bold;
+            color: #00ff00;
+            text-shadow: 
+                0 0 10px #00ff00,
+                0 0 20px #00ff00;
             line-height: 1;
             margin-bottom: 5px;
+            position: relative;
+            z-index: 1;
+            font-family: 'Segment7Standard', monospace;
+            font-weight: normal;
         }
         
         .time-label {
-            font-size: 1.1rem;
-            color: #b0b0b0;
+            font-size: 1.3rem;
+            color: #80ff80;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 3px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .milliseconds-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(0, 20, 0, 0.8);
+            border: 2px solid #00ff00;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .milliseconds-title {
+            font-size: 1.2rem;
+            color: #80ff80;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
         }
         
         .milliseconds {
-            margin-top: 10px;
-            font-size: 1.3rem;
-            color: #f72585;
-            font-weight: 600;
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ffff00;
+            text-shadow: 
+                0 0 10px #ffff00,
+                0 0 20px #ffff00;
+            font-family: 'Segment7Standard', monospace;
+            font-weight: normal;
+            letter-spacing: 5px;
         }
         
-        .target-info {
-            text-align: center;
-            margin-top: 30px;
-            padding: 20px;
-            background-color: rgba(26, 26, 46, 0.6);
-            border-radius: 10px;
-            border-left: 4px solid #4cc9f0;
-        }
-        
-        .target-info h3 {
-            color: #4cc9f0;
-            margin-bottom: 10px;
-            font-size: 1.5rem;
-        }
-        
-        .target-info p {
-            color: #b0b0b0;
-            line-height: 1.6;
-        }
-        
-        .redirect-message {
-            text-align: center;
+        .status {
             margin-top: 40px;
-            padding: 20px;
-            background-color: rgba(247, 37, 133, 0.1);
-            border-radius: 10px;
-            border: 1px solid rgba(247, 37, 133, 0.3);
-            display: none;
+            padding: 15px;
+            background-color: rgba(0, 30, 0, 0.6);
+            border: 1px solid #00ff00;
+            border-radius: 2px;
+            display: inline-block;
+            font-size: 1.1rem;
+            color: #80ff80;
+            letter-spacing: 1px;
+            max-width: 600px;
         }
         
-        .redirect-message.active {
-            display: block;
-            animation: pulse 2s infinite;
+        .blink {
+            animation: blink 1s infinite;
         }
         
-        @keyframes pulse {
-            0% { opacity: 0.7; }
-            50% { opacity: 1; }
-            100% { opacity: 0.7; }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
         
         .footer {
-            margin-top: 40px;
-            text-align: center;
-            color: #666;
+            margin-top: 50px;
             font-size: 0.9rem;
-            padding: 20px;
+            color: #008000;
+            letter-spacing: 2px;
         }
         
-        .footer a {
-            color: #4cc9f0;
-            text-decoration: none;
+        /* Retro terminal cursor */
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background-color: #00ff00;
+            margin-left: 5px;
+            animation: cursor-blink 1s infinite;
+            vertical-align: middle;
         }
         
-        .footer a:hover {
-            text-decoration: underline;
+        @keyframes cursor-blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
         }
         
-        @media (max-width: 768px) {
+        /* Segment7 font for digital display */
+        @font-face {
+            font-family: 'Segment7Standard';
+            src: url('https://cdn.rawgit.com/divyanshuagrawal/segment7-font/master/Segment7Standard.otf') format('opentype');
+            font-weight: normal;
+            font-style: italic;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 900px) {
             .countdown {
-                flex-wrap: wrap;
                 gap: 15px;
             }
             
             .time-unit {
-                min-width: 120px;
+                min-width: 130px;
                 padding: 20px 10px;
             }
             
             .time-value {
-                font-size: 2.8rem;
+                font-size: 3.5rem;
             }
             
-            h1 {
+            .title {
                 font-size: 2.2rem;
-            }
-            
-            .logo {
-                font-size: 2.8rem;
             }
         }
         
-        @media (max-width: 480px) {
+        @media (max-width: 600px) {
             .countdown {
                 gap: 10px;
             }
@@ -215,30 +293,34 @@
             }
             
             .time-value {
+                font-size: 2.5rem;
+            }
+            
+            .title {
+                font-size: 1.8rem;
+                letter-spacing: 3px;
+            }
+            
+            .milliseconds {
                 font-size: 2.2rem;
             }
             
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            .countdown-container {
-                padding: 20px;
+            .container {
+                padding: 20px 15px;
+                border-width: 4px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo">
-            <i class="fas fa-clock"></i>Biała Jaskółka
-        </div>
-        <h1>Odliczanie do Wielkiego Wydarzenia</h1>
-        <p class="subtitle">Zegar odlicza czas do premiery nowej strony Białej Jaskółki. Po osiągnięciu zera nastąpi automatyczne przekierowanie.</p>
-    </div>
+    <!-- CRT effects -->
+    <div class="crt-effect"></div>
+    <div class="scanlines"></div>
     
-    <div class="countdown-container">
-        <h2 class="countdown-title">Zegar Odliczający</h2>
+    <div class="container">
+        <h1 class="title">SYSTEM COUNTDOWN<span class="cursor"></span></h1>
+        
+        <p class="subtitle">INITIALIZING SEQUENCE...</p>
         
         <div class="countdown">
             <div class="time-unit">
@@ -259,33 +341,30 @@
             <div class="time-unit">
                 <div class="time-value" id="seconds">00</div>
                 <div class="time-label">Sekund</div>
-                <div class="milliseconds" id="milliseconds">000</div>
             </div>
         </div>
         
-        <div class="target-info">
-            <h3>Cel odliczania</h3>
-            <p>Zegar odlicza do momentu przekierowania na główną stronę Białej Jaskółki. Po osiągnięciu zera automatycznie przejdziesz na stronę <strong>https://bonkersi.github.io/BialaJaskolka.pl/index.html</strong>.</p>
+        <div class="milliseconds-container">
+            <div class="milliseconds-title">MILISEKUNDY</div>
+            <div class="milliseconds" id="milliseconds">000</div>
         </div>
         
-        <div class="redirect-message" id="redirectMessage">
-            <h3><i class="fas fa-exclamation-circle"></i> Przekierowanie!</h3>
-            <p>Odliczanie zakończone! Za chwilę nastąpi przekierowanie na stronę główną...</p>
+        <div class="status blink" id="status">
+            SYSTEM ACTIVE :: COUNTDOWN IN PROGRESS
         </div>
-    </div>
-    
-    <div class="footer">
-        <p>Strona z zegarem odliczającym dla Białej Jaskółki &copy; 2023</p>
-        <p>Po zakończeniu odliczania nastąpi przekierowanie na <a href="https://bonkersi.github.io/BialaJaskolka.pl/index.html" id="targetLink">główną stronę</a>.</p>
+        
+        <div class="footer" id="footer">
+            [v1.0.3] :: TERMINAL READY
+        </div>
     </div>
 
     <script>
-        // Ustawienie daty docelowej - 5 dni od teraz
+        // Ustawienie daty docelowej - 7 dni od teraz
         const targetDate = new Date();
-        targetDate.setDate(targetDate.getDate() + 5);
-        targetDate.setHours(targetDate.getHours() + 12);
-        targetDate.setMinutes(targetDate.getMinutes() + 30);
-        targetDate.setSeconds(targetDate.getSeconds() + 45);
+        targetDate.setDate(targetDate.getDate() + 7);
+        targetDate.setHours(targetDate.getHours() + 6);
+        targetDate.setMinutes(targetDate.getMinutes() + 45);
+        targetDate.setSeconds(targetDate.getSeconds() + 30);
         
         // Elementy DOM
         const daysElement = document.getElementById('days');
@@ -293,8 +372,31 @@
         const minutesElement = document.getElementById('minutes');
         const secondsElement = document.getElementById('seconds');
         const millisecondsElement = document.getElementById('milliseconds');
-        const redirectMessage = document.getElementById('redirectMessage');
-        const targetLink = document.getElementById('targetLink');
+        const statusElement = document.getElementById('status');
+        const footerElement = document.getElementById('footer');
+        
+        // Dźwięki retro (tylko z interakcją użytkownika)
+        function playBeep(frequency, duration) {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(aContext.currentTime + duration);
+            } catch (e) {
+                // Ignoruj błędy audio
+            }
+        }
         
         // Funkcja formatująca liczby do dwóch cyfr
         function formatNumber(num) {
@@ -307,6 +409,23 @@
             if (num < 100) return '0' + num;
             return num;
         }
+        
+        // Losowe komunikaty statusu
+        const statusMessages = [
+            "SYSTEM ACTIVE :: COUNTDOWN IN PROGRESS",
+            "ANALYZING TEMPORAL DATA...",
+            "SYNCHRONIZING CLOCKS...",
+            "COUNTDOWN SEQUENCE STABLE",
+            "ALL SYSTEMS NOMINAL",
+            "TEMPORAL ANOMALIES: NONE DETECTED",
+            "COUNTDOWN PROTOCOL ENGAGED",
+            "SEQUENCE VERIFIED :: PROCEEDING",
+            "CHRONO-SYNCH ACTIVE",
+            "TEMPORAL COORDINATES LOCKED"
+        ];
+        
+        let lastSecond = -1;
+        let messageIndex = 0;
         
         // Funkcja aktualizująca zegar
         function updateCountdown() {
@@ -322,8 +441,14 @@
                 secondsElement.textContent = '00';
                 millisecondsElement.textContent = '000';
                 
-                // Pokaż komunikat o przekierowaniu
-                redirectMessage.classList.add('active');
+                statusElement.textContent = "SEQUENCE COMPLETE :: INITIATING REDIRECT";
+                statusElement.classList.remove('blink');
+                statusElement.style.color = '#ffff00';
+                
+                footerElement.textContent = "[SYSTEM OVERRIDE] :: REDIRECTING...";
+                
+                // Efekt końcowy
+                document.querySelector('.title').textContent = "MISSION ACCOMPLISHED";
                 
                 // Przekieruj po 3 sekundach
                 setTimeout(() => {
@@ -346,6 +471,22 @@
             minutesElement.textContent = formatNumber(minutes);
             secondsElement.textContent = formatNumber(seconds);
             millisecondsElement.textContent = formatMilliseconds(milliseconds);
+            
+            // Zmień komunikat statusu co 5 sekund
+            const currentSecond = Math.floor(now.getTime() / 1000);
+            if (currentSecond !== lastSecond && currentSecond % 5 === 0) {
+                statusElement.textContent = statusMessages[messageIndex];
+                messageIndex = (messageIndex + 1) % statusMessages.length;
+                lastSecond = currentSecond;
+            }
+            
+            // Efekt dźwiękowy przy zmianie sekundy (tylko po interakcji użytkownika)
+            if (seconds !== lastSecond && document.hidden === false) {
+                // Minimalny dźwięk - aktywowany tylko po interakcji
+                if (window.userInteracted) {
+                    playBeep(800, 0.05);
+                }
+            }
         }
         
         // Uruchom odliczanie co 10 milisekund dla płynnego działania
@@ -354,13 +495,41 @@
         // Inicjalne uruchomienie
         updateCountdown();
         
-        // Dodanie efektu kliknięcia na link docelowy
-        targetLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (confirm('Czy na pewno chcesz przejść na stronę docelową? Odliczanie zostanie przerwane.')) {
-                window.location.href = this.href;
+        // Interakcja użytkownika dla dźwięku
+        let userInteracted = false;
+        window.userInteracted = false;
+        
+        function enableSound() {
+            userInteracted = true;
+            window.userInteracted = true;
+            document.removeEventListener('click', enableSound);
+            document.removeEventListener('keydown', enableSound);
+            document.removeEventListener('touchstart', enableSound);
+        }
+        
+        document.addEventListener('click', enableSound);
+        document.addEventListener('keydown', enableSound);
+        document.addEventListener('touchstart', enableSound);
+        
+        // Efekt pisania w tytule
+        const titleElement = document.querySelector('.title');
+        const originalTitle = "SYSTEM COUNTDOWN";
+        let titleChars = originalTitle.split('');
+        
+        // Losowe miganie cyfr (efekt retro)
+        setInterval(() => {
+            if (Math.random() > 0.7) {
+                const timeValues = document.querySelectorAll('.time-value');
+                const randomIndex = Math.floor(Math.random() * timeValues.length);
+                const originalValue = timeValues[randomIndex].textContent;
+                
+                // Krótkie "miganie" cyfry
+                timeValues[randomIndex].style.opacity = '0.5';
+                setTimeout(() => {
+                    timeValues[randomIndex].style.opacity = '1';
+                }, 50);
             }
-        });
+        }, 300);
     </script>
 </body>
 </html>
