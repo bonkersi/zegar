@@ -14,206 +14,102 @@
         
         body {
             background: #000000;
-            color: #ff0000;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Courier New', monospace;
-            padding: 20px;
+            padding: 15px;
             overflow: hidden;
         }
         
-        /* KONTENER GŁÓWNY */
-        .clock-container {
+        /* KONTENER - CENTROWANIE */
+        .container {
             width: 100%;
+            max-width: 100%;
             text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            padding: 20px 0;
+            padding: 10px;
         }
         
-        /* STARY CYFROWY ZEGAR */
+        /* ZEGAR CYFROWY - PROSTY, BIAŁY */
         .digital-clock {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: nowrap;
+            display: inline-block;
             background: #111111;
-            border: 8px solid #333333;
-            border-radius: 15px;
-            padding: 15px 25px;
+            border: 4px solid #333333;
+            border-radius: 10px;
+            padding: 15px 20px;
             box-shadow: 
-                inset 0 0 30px rgba(0, 0, 0, 0.8),
-                0 0 40px rgba(255, 0, 0, 0.2);
+                inset 0 0 20px rgba(0, 0, 0, 0.8),
+                0 0 30px rgba(255, 255, 255, 0.1);
         }
         
-        /* POJEDYNCZE CYFRY - STARY WYGLĄD */
-        .digit-container {
-            display: inline-flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 0 5px;
-            position: relative;
-        }
-        
-        .digit {
-            font-family: 'Segment7Standard', monospace;
-            font-size: clamp(3rem, 10vw, 7rem);
-            font-weight: normal;
-            font-style: italic;
-            color: #ff0000;
-            text-shadow: 
-                0 0 5px #ff0000,
-                0 0 10px #ff0000;
+        /* CYFRY - BIAŁE, JEDNA LINIA */
+        .time-display {
+            font-family: 'Courier New', monospace;
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: bold;
+            color: #ffffff;
+            letter-spacing: 3px;
             line-height: 1;
-            background: rgba(20, 0, 0, 0.7);
-            padding: 5px 8px;
-            border-radius: 8px;
-            margin: 2px;
-            min-width: 1.2em;
-            text-align: center;
-            box-shadow: 
-                inset 0 0 10px rgba(0, 0, 0, 0.9),
-                0 0 5px rgba(255, 0, 0, 0.3);
-        }
-        
-        /* SEPARATORY (dwukropki) */
-        .separator {
-            font-family: 'Segment7Standard', monospace;
-            font-size: clamp(2.5rem, 8vw, 6rem);
-            font-style: italic;
-            color: #ff3333;
-            margin: 0 5px;
-            animation: blink 1s infinite;
-            opacity: 0.8;
-            position: relative;
-            top: -5px;
-        }
-        
-        /* KROPKA PRZED MILISEKUNDAMI */
-        .dot {
-            font-family: 'Segment7Standard', monospace;
-            font-size: clamp(2rem, 6vw, 4rem);
-            font-style: italic;
-            color: #ff3333;
-            margin: 0 3px;
-            position: relative;
-            top: -10px;
-        }
-        
-        /* MILISEKUNDY - MNIEJSZE CYFRY */
-        .milliseconds {
-            display: inline-flex;
-            align-items: center;
-            margin-left: 5px;
-        }
-        
-        .ms-digit {
-            font-family: 'Segment7Standard', monospace;
-            font-size: clamp(1.5rem, 5vw, 3rem);
-            font-style: italic;
-            color: #ff6666;
+            white-space: nowrap;
             text-shadow: 
-                0 0 3px #ff6666,
-                0 0 6px #ff6666;
-            background: rgba(20, 0, 0, 0.7);
-            padding: 3px 5px;
-            border-radius: 5px;
-            margin: 1px;
-            min-width: 1.5em;
-            text-align: center;
-            box-shadow: 
-                inset 0 0 8px rgba(0, 0, 0, 0.9),
-                0 0 3px rgba(255, 0, 0, 0.3);
+                0 0 5px #ffffff,
+                0 0 10px #ffffff;
         }
         
-        /* EFEKT SEGMENTÓW (dodatkowe cienie dla wyglądu segmentów) */
-        .digit::before {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            right: 2px;
-            bottom: 2px;
-            border: 1px solid rgba(255, 0, 0, 0.1);
-            border-radius: 5px;
-            pointer-events: none;
+        /* SEPARATORY */
+        .separator {
+            color: #ffffff;
+            animation: blink 1s infinite;
+            margin: 0 5px;
+        }
+        
+        /* MILISEKUNDY */
+        .milliseconds {
+            font-size: 0.6em;
+            color: #ffffff;
+            margin-left: 5px;
+            text-shadow: 
+                0 0 3px #ffffff,
+                0 0 6px #ffffff;
+        }
+        
+        /* KROPKA */
+        .dot {
+            color: #ffffff;
+            font-size: 0.6em;
+            margin: 0 2px;
         }
         
         /* ANIMACJE */
         @keyframes blink {
-            0%, 100% { opacity: 0.8; }
-            50% { opacity: 0.3; }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
         
-        @keyframes flicker {
-            0%, 100% { 
-                opacity: 1;
-                text-shadow: 
-                    0 0 5px #ff0000,
-                    0 0 10px #ff0000;
-            }
-            2%, 4%, 6%, 8%, 10%, 12%, 14%, 16%, 18%, 20%, 
-            22%, 24%, 26%, 28%, 30%, 32%, 34%, 36%, 38%, 40%, 
-            42%, 44%, 46%, 48%, 50%, 52%, 54%, 56%, 58%, 60%, 
-            62%, 64%, 66%, 68%, 70%, 72%, 74%, 76%, 78%, 80%, 
-            82%, 84%, 86%, 88%, 90%, 92%, 94%, 96%, 98% { 
-                opacity: 0.95;
-                text-shadow: 
-                    0 0 4px #ff0000,
-                    0 0 8px #ff0000;
-            }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.9; }
         }
         
-        .digit, .ms-digit {
-            animation: flicker 0.5s infinite;
-        }
-        
-        /* EFEKT STAREJ ELEKTRONIKI */
-        .digital-clock::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
-                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.03));
-            background-size: 100% 3px, 4px 100%;
-            pointer-events: none;
-            border-radius: 7px;
-            opacity: 0.3;
+        .time-display {
+            animation: pulse 2s infinite;
         }
         
         /* RESPONSYWNOŚĆ */
         @media (max-width: 768px) {
             .digital-clock {
-                padding: 10px 15px;
-                border-width: 6px;
+                padding: 12px 15px;
+                border-width: 3px;
             }
             
-            .digit {
-                font-size: clamp(2.2rem, 8vw, 4rem);
-                padding: 4px 6px;
-                margin: 1px;
+            .time-display {
+                font-size: clamp(2rem, 7vw, 4rem);
+                letter-spacing: 2px;
             }
             
             .separator {
-                font-size: clamp(1.8rem, 6vw, 3rem);
                 margin: 0 3px;
-                top: -3px;
-            }
-            
-            .ms-digit {
-                font-size: clamp(1.2rem, 4vw, 2.2rem);
-                padding: 2px 4px;
-            }
-            
-            .dot {
-                font-size: clamp(1.5rem, 5vw, 2.5rem);
-                top: -5px;
             }
         }
         
@@ -223,181 +119,144 @@
             }
             
             .digital-clock {
-                padding: 8px 12px;
-                border-width: 4px;
-                border-radius: 10px;
+                padding: 10px 12px;
                 transform: scale(0.95);
             }
             
-            .digit {
-                font-size: clamp(1.8rem, 7vw, 3rem);
-                padding: 3px 5px;
-                min-width: 1em;
+            .time-display {
+                font-size: clamp(1.8rem, 6vw, 3rem);
+                letter-spacing: 1px;
             }
             
-            .separator {
-                font-size: clamp(1.5rem, 5vw, 2.5rem);
-                margin: 0 2px;
-            }
-            
-            .ms-digit {
-                font-size: clamp(1rem, 3.5vw, 1.8rem);
-            }
-            
-            .dot {
-                font-size: clamp(1.2rem, 4vw, 2rem);
+            .milliseconds {
+                font-size: 0.5em;
             }
         }
         
         @media (max-width: 360px) {
             .digital-clock {
-                transform: scale(0.85);
-                padding: 6px 10px;
+                transform: scale(0.9);
+                padding: 8px 10px;
             }
             
-            .digit {
-                font-size: clamp(1.5rem, 6vw, 2.5rem);
-                margin: 0 1px;
-            }
-            
-            .separator {
-                font-size: clamp(1.2rem, 4vw, 2rem);
-                margin: 0 1px;
+            .time-display {
+                font-size: clamp(1.5rem, 5vw, 2.5rem);
             }
         }
         
-        /* ORIENTACJA POZIOMA */
-        @media (orientation: landscape) and (max-height: 500px) {
-            .digital-clock {
-                transform: scale(0.8);
-                padding: 5px 10px;
-            }
+        /* INFORMACJA DEBUG */
+        .debug-info {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            border-radius: 5px;
+            display: none; /* DOMYŚLNIE UKRYTE */
         }
         
-        /* FONT SEGMENTOWY */
-        @font-face {
-            font-family: 'Segment7Standard';
-            src: url('https://fonts.cdnfonts.com/s/19595/Seven Segment.woff') format('woff');
-            font-weight: normal;
-            font-style: italic;
+        /* PRZYCISK TESTU */
+        .test-button {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
         }
         
-        /* ZAPASOWY FONT */
-        @font-face {
-            font-family: 'Segment7Fallback';
-            src: local('Courier New'), local('Monaco'), monospace;
+        .test-button:hover {
+            background: #cccccc;
         }
     </style>
 </head>
 <body>
-    <div class="clock-container">
-        <!-- STARY CYFROWY ZEGAR -->
+    <!-- PRZYCISK TESTU -->
+    <button class="test-button" onclick="testJavaScript()">Test JS</button>
+    
+    <!-- ZEGAR -->
+    <div class="container">
         <div class="digital-clock">
-            <!-- DNI -->
-            <div class="digit-container">
-                <div class="digit" id="days-tens">0</div>
-            </div>
-            <div class="digit-container">
-                <div class="digit" id="days-ones">0</div>
-            </div>
-            
-            <span class="separator">:</span>
-            
-            <!-- GODZINY -->
-            <div class="digit-container">
-                <div class="digit" id="hours-tens">0</div>
-            </div>
-            <div class="digit-container">
-                <div class="digit" id="hours-ones">0</div>
-            </div>
-            
-            <span class="separator">:</span>
-            
-            <!-- MINUTY -->
-            <div class="digit-container">
-                <div class="digit" id="minutes-tens">0</div>
-            </div>
-            <div class="digit-container">
-                <div class="digit" id="minutes-ones">0</div>
-            </div>
-            
-            <span class="separator">:</span>
-            
-            <!-- SEKUNDY -->
-            <div class="digit-container">
-                <div class="digit" id="seconds-tens">0</div>
-            </div>
-            <div class="digit-container">
-                <div class="digit" id="seconds-ones">0</div>
-            </div>
-            
-            <!-- MILISEKUNDY -->
-            <span class="dot">.</span>
-            <div class="milliseconds">
-                <div class="digit-container">
-                    <div class="ms-digit" id="ms-hundreds">0</div>
-                </div>
-                <div class="digit-container">
-                    <div class="ms-digit" id="ms-tens">0</div>
-                </div>
-                <div class="digit-container">
-                    <div class="ms-digit" id="ms-ones">0</div>
-                </div>
+            <div class="time-display">
+                <span id="days">00</span>
+                <span class="separator">:</span>
+                <span id="hours">00</span>
+                <span class="separator">:</span>
+                <span id="minutes">00</span>
+                <span class="separator">:</span>
+                <span id="seconds">00</span>
+                <span class="dot">.</span>
+                <span class="milliseconds" id="milliseconds">000</span>
             </div>
         </div>
     </div>
+    
+    <!-- INFO DEBUG -->
+    <div class="debug-info" id="debug-info"></div>
 
     <script>
+        // ============================================
+        // TEST JAVASCRIPT
+        // ============================================
+        
+        function testJavaScript() {
+            const debug = document.getElementById('debug-info');
+            debug.style.display = 'block';
+            debug.innerHTML = `
+                JavaScript działa!<br>
+                Data: ${new Date().toLocaleString()}<br>
+                Przeglądarka: ${navigator.userAgent}
+            `;
+            
+            // Test odliczania
+            document.getElementById('seconds').textContent = '59';
+            document.getElementById('milliseconds').textContent = '999';
+            
+            setTimeout(() => {
+                debug.innerHTML += '<br>Test zakończony pomyślnie!';
+            }, 1000);
+        }
+        
         // ============================================
         // KONFIGURACJA
         // ============================================
         
-        // Ustaw czas odliczania: 7 dni od teraz
+        // Ustaw czas odliczania: 1 minuta od teraz (dla testu)
         const targetDate = new Date();
-        targetDate.setDate(targetDate.getDate() + 7);
-        targetDate.setHours(23, 59, 59, 999);
+        targetDate.setMinutes(targetDate.getMinutes() + 1);
+        
+        console.log('ZEGAR INICJALIZACJA');
+        console.log('Czas teraz:', new Date().toLocaleTimeString());
+        console.log('Czas docelowy:', targetDate.toLocaleTimeString());
         
         // ============================================
-        // ELEMENTY DOM - POJEDYNCZE CYFRY
+        // ELEMENTY DOM
         // ============================================
         
-        // Dni
-        const daysTens = document.getElementById('days-tens');
-        const daysOnes = document.getElementById('days-ones');
-        
-        // Godziny
-        const hoursTens = document.getElementById('hours-tens');
-        const hoursOnes = document.getElementById('hours-ones');
-        
-        // Minuty
-        const minutesTens = document.getElementById('minutes-tens');
-        const minutesOnes = document.getElementById('minutes-ones');
-        
-        // Sekundy
-        const secondsTens = document.getElementById('seconds-tens');
-        const secondsOnes = document.getElementById('seconds-ones');
-        
-        // Milisekundy
-        const msHundreds = document.getElementById('ms-hundreds');
-        const msTens = document.getElementById('ms-tens');
-        const msOnes = document.getElementById('ms-ones');
-        
-        const digitalClock = document.querySelector('.digital-clock');
+        const daysElement = document.getElementById('days');
+        const hoursElement = document.getElementById('hours');
+        const minutesElement = document.getElementById('minutes');
+        const secondsElement = document.getElementById('seconds');
+        const millisecondsElement = document.getElementById('milliseconds');
         
         // ============================================
         // FUNKCJE POMOCNICZE
         // ============================================
         
-        function splitNumber(num) {
-            // Dla liczby < 10 zwróć ["0", "liczba"]
-            const str = num < 10 ? '0' + num : num.toString();
-            return [str[0], str[1]];
+        function formatNumber(num) {
+            return num < 10 ? '0' + num : num;
         }
         
-        function splitMilliseconds(num) {
-            // Formatuj do 3 cyfr
-            const str = num < 10 ? '00' + num : (num < 100 ? '0' + num : num.toString());
-            return [str[0], str[1], str[2]];
+        function formatMilliseconds(num) {
+            if (num < 10) return '00' + num;
+            if (num < 100) return '0' + num;
+            return num;
         }
         
         // ============================================
@@ -408,22 +267,26 @@
             const now = new Date();
             const timeLeft = targetDate.getTime() - now.getTime();
             
+            // Debug
+            const debug = document.getElementById('debug-info');
+            debug.innerHTML = `Pozostało: ${timeLeft}ms`;
+            
             // Jeśli czas minął
             if (timeLeft <= 0) {
+                console.log('Czas minął!');
                 clearInterval(countdownInterval);
                 
-                // Ustaw wszystkie cyfry na 0
-                const allDigits = document.querySelectorAll('.digit, .ms-digit');
-                allDigits.forEach(digit => {
-                    digit.textContent = '0';
-                    digit.style.color = '#ff3333';
-                    digit.style.textShadow = '0 0 3px #ff3333';
-                });
+                // Ustaw końcowe wartości
+                daysElement.textContent = '00';
+                hoursElement.textContent = '00';
+                minutesElement.textContent = '00';
+                secondsElement.textContent = '00';
+                millisecondsElement.textContent = '000';
                 
-                // Zmień separatory
-                document.querySelectorAll('.separator, .dot').forEach(sep => {
-                    sep.style.color = '#ff3333';
-                });
+                // Zmień kolor na zielony
+                document.querySelector('.time-display').style.color = '#00ff00';
+                document.querySelector('.time-display').style.textShadow = 
+                    '0 0 10px #00ff00, 0 0 20px #00ff00';
                 
                 // Przekieruj po 3 sekundach
                 setTimeout(() => {
@@ -440,52 +303,25 @@
             const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
             const milliseconds = Math.floor(timeLeft % 1000);
             
-            // Podziel na pojedyncze cyfry
-            const [daysTen, daysOne] = splitNumber(days);
-            const [hoursTen, hoursOne] = splitNumber(hours);
-            const [minutesTen, minutesOne] = splitNumber(minutes);
-            const [secondsTen, secondsOne] = splitNumber(seconds);
-            const [msHun, msTen, msOne] = splitMilliseconds(milliseconds);
+            console.log(`Czas: ${days}d ${hours}h ${minutes}m ${seconds}s ${milliseconds}ms`);
             
-            // Zaktualizuj cyfry
-            daysTens.textContent = daysTen;
-            daysOnes.textContent = daysOne;
-            
-            hoursTens.textContent = hoursTen;
-            hoursOnes.textContent = hoursOne;
-            
-            minutesTens.textContent = minutesTen;
-            minutesOnes.textContent = minutesOne;
-            
-            secondsTens.textContent = secondsTen;
-            secondsOnes.textContent = secondsOne;
-            
-            msHundreds.textContent = msHun;
-            msTens.textContent = msTen;
-            msOnes.textContent = msOne;
+            // Zaktualizuj wyświetlacz
+            daysElement.textContent = formatNumber(days);
+            hoursElement.textContent = formatNumber(hours);
+            minutesElement.textContent = formatNumber(minutes);
+            secondsElement.textContent = formatNumber(seconds);
+            millisecondsElement.textContent = formatMilliseconds(milliseconds);
             
             // Efekt migania dwukropków
             const separators = document.querySelectorAll('.separator');
             if (seconds % 2 === 0) {
                 separators.forEach(sep => {
-                    sep.style.opacity = '0.8';
+                    sep.style.opacity = '1';
                 });
             } else {
                 separators.forEach(sep => {
-                    sep.style.opacity = '0.4';
+                    sep.style.opacity = '0.6';
                 });
-            }
-            
-            // Efekt losowego migania cyfr (jak stary wyświetlacz)
-            if (Math.random() > 0.95) {
-                const randomDigit = document.querySelectorAll('.digit, .ms-digit')[
-                    Math.floor(Math.random() * document.querySelectorAll('.digit, .ms-digit').length)
-                ];
-                const originalColor = randomDigit.style.color;
-                randomDigit.style.color = '#ff6666';
-                setTimeout(() => {
-                    randomDigit.style.color = originalColor || '#ff0000';
-                }, 50);
             }
         }
         
@@ -493,11 +329,39 @@
         // INICJALIZACJA
         // ============================================
         
-        // Uruchom zegar
-        const countdownInterval = setInterval(updateCountdown, 10);
+        // Sprawdź czy JavaScript działa
+        console.log('JavaScript działa!');
+        document.getElementById('debug-info').textContent = 'JavaScript aktywny';
+        document.getElementById('debug-info').style.display = 'block';
         
-        // Pierwsze wywołanie
-        updateCountdown();
+        // Uruchom zegar
+        let countdownInterval;
+        
+        function startCountdown() {
+            console.log('Uruchamiam odliczanie...');
+            
+            // Zatrzymaj istniejący interval jeśli jest
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+            
+            // Uruchom nowy interval
+            countdownInterval = setInterval(updateCountdown, 10);
+            
+            // Pierwsze wywołanie
+            updateCountdown();
+            
+            // Pokaż komunikat
+            document.getElementById('debug-info').innerHTML = 
+                'Odliczanie uruchomione!<br>' +
+                'Docelowy czas: ' + targetDate.toLocaleTimeString();
+        }
+        
+        // Start przy załadowaniu strony
+        window.addEventListener('load', startCountdown);
+        
+        // Ręczny start
+        setTimeout(startCountdown, 1000);
         
         // ============================================
         // DOSTOSOWANIE ROZMIARU
@@ -505,69 +369,58 @@
         
         function adjustSize() {
             const clock = document.querySelector('.digital-clock');
+            const display = document.querySelector('.time-display');
             const screenWidth = window.innerWidth;
             
+            // Sprawdź czy tekst mieści się
+            const textWidth = display.scrollWidth;
+            const containerWidth = clock.offsetWidth;
+            
+            console.log('Szerokość tekstu:', textWidth, 'px');
+            console.log('Szerokość kontenera:', containerWidth, 'px');
+            
+            // Jeśli tekst jest za szeroki, zmniejsz czcionkę
+            if (textWidth > containerWidth * 0.9) {
+                const currentSize = parseFloat(getComputedStyle(display).fontSize);
+                const newSize = currentSize * 0.9;
+                display.style.fontSize = newSize + 'px';
+                console.log('Zmniejszono czcionkę do:', newSize, 'px');
+            }
+            
+            // Dla bardzo małych ekranów
             if (screenWidth < 400) {
-                clock.style.transform = 'scale(0.85)';
-            } else if (screenWidth < 480) {
                 clock.style.transform = 'scale(0.9)';
-            } else if (screenWidth < 768) {
-                clock.style.transform = 'scale(0.95)';
             } else {
                 clock.style.transform = 'scale(1)';
             }
         }
         
-        window.addEventListener('load', adjustSize);
         window.addEventListener('resize', adjustSize);
-        window.addEventListener('orientationchange', () => {
-            setTimeout(adjustSize, 300);
-        });
+        setTimeout(adjustSize, 500);
         
         // ============================================
-        // DODATKOWE EFEKTY
+        // AUTOMATYCZNY TEST
         // ============================================
         
-        // Efekt starego TV (linie skanowania)
-        setInterval(() => {
-            const scanlines = document.createElement('div');
-            scanlines.style.position = 'absolute';
-            scanlines.style.top = '0';
-            scanlines.style.left = '0';
-            scanlines.style.right = '0';
-            scanlines.style.height = '2px';
-            scanlines.style.background = 'linear-gradient(to right, transparent, rgba(255,0,0,0.1), transparent)';
-            scanlines.style.pointerEvents = 'none';
-            scanlines.style.zIndex = '100';
-            scanlines.style.animation = 'scan 2s linear';
-            
-            digitalClock.appendChild(scanlines);
-            
-            setTimeout(() => {
-                if (scanlines.parentNode) {
-                    scanlines.parentNode.removeChild(scanlines);
-                }
-            }, 2000);
-        }, 3000);
-        
-        // Dodaj styl dla animacji skanowania
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes scan {
-                0% { top: 0; opacity: 0; }
-                10% { opacity: 0.5; }
-                90% { opacity: 0.5; }
-                100% { top: 100%; opacity: 0; }
+        // Test po 2 sekundach
+        setTimeout(() => {
+            const seconds = document.getElementById('seconds').textContent;
+            if (seconds === '00') {
+                console.log('UWAGA: Zegar nie liczy!');
+                document.getElementById('debug-info').innerHTML = 
+                    'BŁĄD: Zegar nie liczy czasu<br>' +
+                    'Sprawdź czy JavaScript jest włączony<br>' +
+                    'Spróbuj kliknąć przycisk "Test JS"';
+                document.getElementById('debug-info').style.color = '#ff0000';
+                document.getElementById('debug-info').style.background = 'rgba(255, 0, 0, 0.2)';
+            } else {
+                console.log('OK: Zegar działa poprawnie');
+                document.getElementById('debug-info').innerHTML = 
+                    'OK: Zegar działa<br>' +
+                    'Liczy czas poprawnie';
             }
-        `;
-        document.head.appendChild(style);
+        }, 2000);
         
-        // ============================================
-        // DEBUG
-        // ============================================
-        console.log('STARY CYFROWY ZEGAR: AKTYWNY');
-        console.log('Czas docelowy:', targetDate.toLocaleString());
-        console.log('Format: pojedyncze cyfry segmentowe');
     </script>
 </body>
 </html>
