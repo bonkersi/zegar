@@ -2,470 +2,930 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Odliczanie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Countdown Timer | Professional Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* RESET */
+        /* ===== RESET & BASE ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
-        
+
+        :root {
+            --primary-color: #ffffff;
+            --secondary-color: #f0f0f0;
+            --accent-color: #00ffea;
+            --bg-color: #000000;
+            --card-bg: rgba(15, 15, 20, 0.9);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --glow-intensity: 0.8;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
         body {
-            background: #000000;
+            background: var(--bg-color);
+            color: var(--primary-color);
+            font-family: 'Roboto Mono', monospace;
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-family: monospace;
-            padding: 10px;
-            overflow: hidden;
-        }
-        
-        /* GŁÓWNY KONTENER - NAPRAWIONE */
-        .container {
-            width: 100%;
-            max-width: 100%;
-            text-align: center;
-            padding: 5px;
-        }
-        
-        /* ZEGAR - KOMPAKTOWY, NIE ROZJECHANY */
-        .digital-clock {
-            display: inline-block;
-            background: #0a0a0a;
-            border: 6px solid #1a1a1a;
-            border-radius: 4px;
-            padding: 12px 15px;
-            box-shadow: 
-                inset 0 0 20px rgba(0, 0, 0, 0.9),
-                0 0 20px rgba(255, 255, 255, 0.03);
-            max-width: 95%;
-            margin: 0 auto;
-        }
-        
-        /* WYŚWIETLACZ - MNIEJ JASNY, KOMPAKTOWY */
-        .display {
-            font-family: 'Courier New', 'Digital-7', monospace;
-            font-size: clamp(2rem, 6vw, 4.5rem); /* MNIEJSZE CZCIONKI */
-            font-weight: normal;
-            color: #e0e0e0; /* MNIEJ JASNE - SZARO-BIAŁE */
-            letter-spacing: 4px; /* MNIEJSZE ODSTĘPY */
-            line-height: 1;
-            white-space: nowrap;
-            text-shadow: 
-                0 0 3px #e0e0e0,
-                0 0 6px #e0e0e0;
-            background: #000000;
-            padding: 10px 12px;
-            border-radius: 2px;
-            border: 1px solid #2a2a2a;
+            padding: 20px;
+            overflow-x: hidden;
             position: relative;
-            display: inline-block;
-            max-width: 100%;
-            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(0, 100, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 0, 200, 0.05) 0%, transparent 50%);
         }
-        
-        /* EFEKT EKRANU */
-        .display::before {
+
+        /* ===== BACKGROUND EFFECTS ===== */
+        .bg-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        /* ===== MAIN CONTAINER ===== */
+        .main-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .header-title {
+            font-size: clamp(2.5rem, 4vw, 4rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .header-subtitle {
+            font-size: clamp(1rem, 1.5vw, 1.2rem);
+            color: var(--secondary-color);
+            font-weight: 300;
+            letter-spacing: 3px;
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* ===== COUNTDOWN CARD ===== */
+        .countdown-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: clamp(30px, 5vw, 60px);
+            margin: 0 auto 50px;
+            max-width: 1200px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        .countdown-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            bottom: 0;
-            background: 
-                linear-gradient(rgba(0, 0, 0, 0) 50%, rgba(255, 255, 255, 0.02) 50%);
-            background-size: 100% 3px;
-            pointer-events: none;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                var(--accent-color), 
+                transparent);
         }
-        
-        /* CYFRY */
-        .digit {
+
+        /* ===== DIGITAL DISPLAY ===== */
+        .digital-display {
+            font-family: 'Roboto Mono', monospace;
+            font-size: clamp(3rem, 10vw, 8rem);
+            font-weight: 700;
+            color: var(--primary-color);
+            letter-spacing: clamp(4px, 1.5vw, 12px);
+            line-height: 1.1;
+            text-align: center;
+            margin: 0 auto 40px;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Individual time parts */
+        .time-part {
             display: inline-block;
+            min-width: 2.2ch;
+            text-align: center;
             position: relative;
+            transition: all 0.3s ease;
         }
-        
-        /* SEPARATORY - MNIEJ JASNE */
+
+        .time-part:hover {
+            transform: translateY(-2px);
+            text-shadow: 0 0 20px var(--accent-color);
+        }
+
+        /* Separators */
         .separator {
-            color: #cccccc; /* SZARE */
-            animation: blink 1s infinite;
-            margin: 0 3px;
+            color: var(--accent-color);
+            margin: 0 clamp(2px, 0.5vw, 10px);
             position: relative;
-            top: -1px;
-            font-weight: bold;
-            opacity: 0.7;
+            animation: pulse 2s infinite;
+            font-weight: 300;
         }
-        
-        /* KROPKA - MNIEJ JASNA */
+
+        /* Milliseconds */
+        .milliseconds-container {
+            display: inline-flex;
+            align-items: baseline;
+            margin-left: clamp(5px, 1vw, 15px);
+        }
+
         .dot {
-            color: #cccccc; /* SZARE */
+            color: var(--accent-color);
             margin: 0 2px;
+            font-size: 0.6em;
             position: relative;
-            top: -4px;
-            font-size: 0.7em;
-            opacity: 0.7;
+            top: -0.3em;
         }
-        
-        /* MILISEKUNDY - MNIEJ JASNE */
+
         .milliseconds {
-            font-size: 0.45em; /* MNIEJSZE */
-            color: #bbbbbb; /* SZARO-BIAŁE */
-            margin-left: 3px;
-            text-shadow: 
-                0 0 2px #bbbbbb,
-                0 0 4px #bbbbbb;
-            letter-spacing: 2px; /* MNIEJSZE ODSTĘPY */
-            position: relative;
-            top: -6px;
+            font-size: 0.4em;
+            color: var(--secondary-color);
+            letter-spacing: 2px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        /* ===== LABELS ===== */
+        .time-labels {
+            display: flex;
+            justify-content: center;
+            gap: clamp(15px, 3vw, 40px);
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .time-label {
+            text-align: center;
+            flex: 1;
+            min-width: 80px;
+            max-width: 150px;
+        }
+
+        .label-value {
+            font-size: clamp(1.8rem, 3vw, 2.5rem);
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px rgba(0, 255, 234, 0.3);
+        }
+
+        .label-text {
+            font-size: clamp(0.8rem, 1vw, 1rem);
+            color: var(--secondary-color);
+            text-transform: uppercase;
+            letter-spacing: 2px;
             opacity: 0.8;
         }
-        
-        /* ANIMACJE - SUBTELNIEJSZE */
-        @keyframes blink {
+
+        /* ===== PROGRESS BAR ===== */
+        .progress-container {
+            margin: 50px auto 30px;
+            max-width: 800px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            opacity: 0.8;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, 
+                var(--accent-color), 
+                #00ccff);
+            width: 0%;
+            border-radius: 3px;
+            transition: width 0.5s ease-out;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 255, 234, 0.3);
+        }
+
+        /* ===== STATUS INDICATOR ===== */
+        .status-indicator {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .status-text {
+            font-size: clamp(1rem, 1.5vw, 1.2rem);
+            color: var(--accent-color);
+            font-weight: 500;
+            letter-spacing: 2px;
+            opacity: 0.9;
+            animation: fadeInOut 3s infinite;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 800px;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        .footer-text {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            opacity: 0.6;
+            letter-spacing: 1px;
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes fadeInOut {
             0%, 100% { opacity: 0.7; }
-            50% { opacity: 0.3; }
+            50% { opacity: 1; }
         }
-        
-        @keyframes flicker {
+
+        @keyframes glow {
             0%, 100% { 
-                opacity: 0.98;
-                text-shadow: 
-                    0 0 3px #e0e0e0,
-                    0 0 6px #e0e0e0;
+                text-shadow: 0 0 10px var(--primary-color),
+                            0 0 20px rgba(255, 255, 255, 0.3); 
             }
-            95% { 
-                opacity: 0.96;
-                text-shadow: 
-                    0 0 2px #e0e0e0,
-                    0 0 4px #e0e0e0;
+            50% { 
+                text-shadow: 0 0 15px var(--primary-color),
+                            0 0 30px rgba(255, 255, 255, 0.5),
+                            0 0 40px rgba(255, 255, 255, 0.2); 
             }
         }
-        
-        .display {
-            animation: flicker 1s infinite;
+
+        .digital-display {
+            animation: glow 3s infinite;
         }
-        
-        /* RESPONSYWNOŚĆ - POPRAWIONA */
-        
-        /* TELEFONY MAŁE */
-        @media (max-width: 480px) {
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 1200px) {
+            .main-container {
+                padding: 20px;
+            }
+            
+            .countdown-card {
+                padding: 40px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .digital-display {
+                font-size: clamp(2.5rem, 8vw, 6rem);
+            }
+            
+            .time-labels {
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
             body {
-                padding: 5px;
+                padding: 15px;
             }
             
-            .digital-clock {
-                padding: 8px 10px;
-                border-width: 4px;
-                max-width: 98%;
+            .main-container {
+                padding: 15px;
             }
             
-            .display {
-                font-size: clamp(1.5rem, 5vw, 3rem);
+            .countdown-card {
+                padding: 30px 20px;
+                border-radius: 20px;
+            }
+            
+            .digital-display {
+                font-size: clamp(2rem, 7vw, 4rem);
                 letter-spacing: 3px;
-                padding: 6px 8px;
+                padding: 15px;
             }
             
-            .separator {
-                margin: 0 2px;
-                letter-spacing: 1px;
-                top: 0;
+            .header-title {
+                font-size: clamp(2rem, 3vw, 3rem);
             }
             
-            .milliseconds {
-                font-size: 0.4em;
-                top: -4px;
-                letter-spacing: 1px;
+            .time-labels {
+                gap: 15px;
             }
             
-            .dot {
-                top: -3px;
-                font-size: 0.6em;
+            .label-value {
+                font-size: clamp(1.5rem, 2.5vw, 2rem);
             }
         }
-        
-        /* TELEFONY BARDZO MAŁE */
-        @media (max-width: 360px) {
-            .digital-clock {
-                padding: 6px 8px;
-                border-width: 3px;
-            }
-            
-            .display {
-                font-size: clamp(1.2rem, 4.5vw, 2.5rem);
+
+        @media (max-width: 480px) {
+            .digital-display {
+                font-size: clamp(1.8rem, 6vw, 3rem);
                 letter-spacing: 2px;
-                padding: 5px 6px;
-            }
-            
-            .separator {
-                margin: 0 1px;
-                font-size: 0.9em;
             }
             
             .milliseconds {
-                font-size: 0.35em;
-                top: -3px;
+                letter-spacing: 1px;
             }
             
-            .dot {
-                font-size: 0.5em;
-                top: -2px;
+            .time-labels {
+                gap: 10px;
+            }
+            
+            .time-label {
+                min-width: 70px;
+            }
+            
+            .progress-container {
+                margin: 30px auto 20px;
             }
         }
-        
-        /* TABLETY */
-        @media (min-width: 481px) and (max-width: 768px) {
-            .digital-clock {
-                padding: 10px 12px;
+
+        @media (max-width: 360px) {
+            .digital-display {
+                font-size: clamp(1.5rem, 5vw, 2.5rem);
             }
             
-            .display {
-                font-size: clamp(1.8rem, 5.5vw, 3.5rem);
-                letter-spacing: 4px;
-                padding: 8px 10px;
+            .time-part {
+                min-width: 1.8ch;
             }
         }
-        
-        /* KOMPUTERY */
-        @media (min-width: 769px) and (max-width: 1200px) {
-            .digital-clock {
-                padding: 15px 18px;
-                border-width: 6px;
-            }
-            
-            .display {
-                font-size: clamp(2.2rem, 4vw, 4rem);
-                letter-spacing: 5px;
-                padding: 12px 15px;
-            }
+
+        /* ===== UTILITY CLASSES ===== */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
         }
-        
-        /* DUŻE EKRANY */
-        @media (min-width: 1201px) {
-            .digital-clock {
-                padding: 18px 22px;
-                border-width: 8px;
-            }
-            
-            .display {
-                font-size: clamp(2.5rem, 3vw, 4.5rem);
-                letter-spacing: 6px;
-                padding: 15px 18px;
-            }
+
+        /* ===== LOADING STATE ===== */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease-out;
         }
-        
-        /* ORIENTACJA POZIOMA */
-        @media (orientation: landscape) and (max-height: 600px) {
-            .digital-clock {
-                padding: 8px 10px;
-                transform: scale(0.9);
-            }
-            
-            .display {
-                font-size: clamp(1.5rem, 4vw, 3rem);
-                letter-spacing: 3px;
-            }
+
+        .loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <!-- ZEGAR - NAPRAWIONY LAYOUT -->
-    <div class="container">
-        <div class="digital-clock">
-            <div class="display">
-                <span class="digit" id="days">00</span>
+    <!-- LOADING SCREEN -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- BACKGROUND EFFECTS -->
+    <div class="bg-particles" id="particles"></div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-container">
+        <!-- HEADER -->
+        <header class="header">
+            <h1 class="header-title">Countdown Timer</h1>
+            <p class="header-subtitle">Precision countdown with millisecond accuracy</p>
+        </header>
+
+        <!-- COUNTDOWN CARD -->
+        <main class="countdown-card">
+            <!-- DIGITAL DISPLAY -->
+            <div class="digital-display" id="digitalDisplay" aria-live="polite">
+                <span class="time-part" id="days">00</span>
                 <span class="separator">:</span>
-                <span class="digit" id="hours">00</span>
+                <span class="time-part" id="hours">00</span>
                 <span class="separator">:</span>
-                <span class="digit" id="minutes">00</span>
+                <span class="time-part" id="minutes">00</span>
                 <span class="separator">:</span>
-                <span class="digit" id="seconds">00</span>
-                <span class="dot">.</span>
-                <span class="milliseconds" id="milliseconds">000</span>
+                <span class="time-part" id="seconds">00</span>
+                <div class="milliseconds-container">
+                    <span class="dot">.</span>
+                    <span class="milliseconds time-part" id="milliseconds">000</span>
+                </div>
             </div>
-        </div>
+
+            <!-- TIME LABELS -->
+            <div class="time-labels">
+                <div class="time-label">
+                    <div class="label-value" id="labelDays">00</div>
+                    <div class="label-text">Days</div>
+                </div>
+                <div class="time-label">
+                    <div class="label-value" id="labelHours">00</div>
+                    <div class="label-text">Hours</div>
+                </div>
+                <div class="time-label">
+                    <div class="label-value" id="labelMinutes">00</div>
+                    <div class="label-text">Minutes</div>
+                </div>
+                <div class="time-label">
+                    <div class="label-value" id="labelSeconds">00</div>
+                    <div class="label-text">Seconds</div>
+                </div>
+            </div>
+
+            <!-- PROGRESS BAR -->
+            <div class="progress-container">
+                <div class="progress-info">
+                    <span>Start</span>
+                    <span id="progressPercentage">0%</span>
+                    <span>Target</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <!-- STATUS INDICATOR -->
+            <div class="status-indicator">
+                <div class="status-text" id="statusText">System initialized • Countdown active</div>
+            </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <p class="footer-text">Professional Countdown System v2.0 • Automatic redirect upon completion</p>
+        </footer>
     </div>
 
     <script>
         // ============================================
-        // KONFIGURACJA - 14 DNI
+        // PROFESSIONAL COUNTDOWN SYSTEM
         // ============================================
-        
-        const targetDate = new Date();
-        targetDate.setDate(targetDate.getDate() + 14);
-        targetDate.setHours(23, 59, 59, 999);
-        
-        // ============================================
-        // ELEMENTY DOM
-        // ============================================
-        
-        const daysElement = document.getElementById('days');
-        const hoursElement = document.getElementById('hours');
-        const minutesElement = document.getElementById('minutes');
-        const secondsElement = document.getElementById('seconds');
-        const millisecondsElement = document.getElementById('milliseconds');
-        const display = document.querySelector('.display');
-        const clock = document.querySelector('.digital-clock');
-        
-        // ============================================
-        // FUNKCJE POMOCNICZE
-        // ============================================
-        
-        function formatNumber(num) {
-            return num < 10 ? '0' + num : num;
-        }
-        
-        function formatMilliseconds(num) {
-            if (num < 10) return '00' + num;
-            if (num < 100) return '0' + num;
-            return num;
-        }
-        
-        // ============================================
-        // FUNKCJA AUTOMATYCZNEGO DOPASOWANIA
-        // ============================================
-        
-        function adjustClock() {
-            const displayWidth = display.scrollWidth;
-            const clockWidth = clock.offsetWidth;
-            const screenWidth = window.innerWidth;
+
+        // Configuration
+        const CONFIG = {
+            targetDays: 14, // 14 days countdown
+            redirectUrl: 'https://bonkersi.github.io/BialaJaskolka.pl/index.html',
+            statusMessages: [
+                "System initialized • Countdown active",
+                "All systems nominal • Tracking time",
+                "Precision timing engaged",
+                "Countdown sequence stable",
+                "Millisecond accuracy verified",
+                "Target locked • Proceeding as scheduled"
+            ]
+        };
+
+        // DOM Elements
+        const elements = {
+            // Time display
+            days: document.getElementById('days'),
+            hours: document.getElementById('hours'),
+            minutes: document.getElementById('minutes'),
+            seconds: document.getElementById('seconds'),
+            milliseconds: document.getElementById('milliseconds'),
             
-            // Jeśli tekst jest za szeroki
-            if (displayWidth > clockWidth * 0.95) {
-                // Pobierz aktualny rozmiar czcionki
-                const currentSize = parseFloat(getComputedStyle(display).fontSize);
-                
-                // Oblicz nowy rozmiar (90% aktualnego lub proporcjonalnie)
-                const scaleFactor = (clockWidth * 0.9) / displayWidth;
-                const newSize = Math.min(currentSize * 0.9, currentSize * scaleFactor);
-                
-                // Zastosuj nowy rozmiar
-                display.style.fontSize = newSize + 'px';
-                
-                // Dostosuj też milisekundy
-                const msSize = newSize * 0.45;
-                document.querySelector('.milliseconds').style.fontSize = msSize + 'px';
-                
-                // Dostosuj kropkę
-                document.querySelector('.dot').style.fontSize = (newSize * 0.7) + 'px';
+            // Labels
+            labelDays: document.getElementById('labelDays'),
+            labelHours: document.getElementById('labelHours'),
+            labelMinutes: document.getElementById('labelMinutes'),
+            labelSeconds: document.getElementById('labelSeconds'),
+            
+            // Progress
+            progressFill: document.getElementById('progressFill'),
+            progressPercentage: document.getElementById('progressPercentage'),
+            
+            // Status
+            statusText: document.getElementById('statusText'),
+            
+            // Loading
+            loading: document.getElementById('loading'),
+            
+            // Display
+            digitalDisplay: document.getElementById('digitalDisplay')
+        };
+
+        // State management
+        let state = {
+            targetDate: null,
+            startDate: null,
+            totalTime: null,
+            countdownInterval: null,
+            statusIndex: 0,
+            lastStatusChange: 0,
+            isRedirecting: false
+        };
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+
+        function initializeCountdown() {
+            console.log('🚀 Professional Countdown System Initializing...');
+            
+            // Set target date (14 days from now)
+            state.targetDate = new Date();
+            state.targetDate.setDate(state.targetDate.getDate() + CONFIG.targetDays);
+            state.targetDate.setHours(23, 59, 59, 999);
+            
+            // Set start date (now)
+            state.startDate = new Date();
+            
+            // Calculate total time
+            state.totalTime = state.targetDate.getTime() - state.startDate.getTime();
+            
+            console.log('📅 Target Date:', state.targetDate.toLocaleString());
+            console.log('⏱️ Total Duration:', formatDuration(state.totalTime));
+            
+            // Hide loading screen
+            setTimeout(() => {
+                elements.loading.classList.add('hidden');
+                createParticles();
+            }, 800);
+            
+            // Start countdown
+            startCountdown();
+            
+            // Initialize status rotation
+            rotateStatusMessage();
+            
+            // Add performance monitoring
+            monitorPerformance();
+        }
+
+        // ============================================
+        // COUNTDOWN ENGINE
+        // ============================================
+
+        function startCountdown() {
+            // Clear any existing interval
+            if (state.countdownInterval) {
+                clearInterval(state.countdownInterval);
             }
             
-            // Dla bardzo małych ekranów
-            if (screenWidth < 400) {
-                clock.style.padding = '6px 8px';
-                display.style.padding = '5px 6px';
-                display.style.letterSpacing = '2px';
-                document.querySelector('.milliseconds').style.letterSpacing = '1px';
-            }
+            // Start new interval with high precision
+            state.countdownInterval = setInterval(updateCountdown, 10); // 100Hz for smoothness
+            
+            // Initial update
+            updateCountdown();
+            
+            console.log('▶️ Countdown started with millisecond precision');
         }
-        
-        // ============================================
-        // GŁÓWNA FUNKCJA ODLICZAJĄCA
-        // ============================================
-        
+
         function updateCountdown() {
             const now = new Date();
-            const timeLeft = targetDate.getTime() - now.getTime();
+            const timeLeft = state.targetDate.getTime() - now.getTime();
             
-            // Jeśli czas minął
+            // Check if countdown has ended
             if (timeLeft <= 0) {
-                clearInterval(countdownInterval);
-                
-                // Ustaw końcowe wartości
-                daysElement.textContent = '00';
-                hoursElement.textContent = '00';
-                minutesElement.textContent = '00';
-                secondsElement.textContent = '00';
-                millisecondsElement.textContent = '000';
-                
-                // Efekt końcowy
-                display.style.color = '#ff4444';
-                display.style.textShadow = '0 0 5px #ff4444, 0 0 10px #ff4444';
-                display.style.animation = 'none';
-                
-                // Przekieruj po 3 sekundach
-                setTimeout(() => {
-                    window.location.href = 'https://bonkersi.github.io/BialaJaskolka.pl/index.html';
-                }, 3000);
-                
+                endCountdown();
                 return;
             }
             
-            // Oblicz pozostały czas
+            // Calculate time components
             const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
             const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
             const milliseconds = Math.floor(timeLeft % 1000);
             
-            // Zaktualizuj wyświetlacz
-            daysElement.textContent = formatNumber(days);
-            hoursElement.textContent = formatNumber(hours);
-            minutesElement.textContent = formatNumber(minutes);
-            secondsElement.textContent = formatNumber(seconds);
-            millisecondsElement.textContent = formatMilliseconds(milliseconds);
+            // Update display
+            updateDisplay(days, hours, minutes, seconds, milliseconds);
             
-            // Efekt migania dwukropków
+            // Update progress
+            updateProgress(timeLeft);
+            
+            // Update effects
+            updateEffects(milliseconds);
+        }
+
+        function updateDisplay(d, h, m, s, ms) {
+            // Format numbers
+            const formatted = {
+                days: formatNumber(d, 2),
+                hours: formatNumber(h, 2),
+                minutes: formatNumber(m, 2),
+                seconds: formatNumber(s, 2),
+                milliseconds: formatNumber(ms, 3)
+            };
+            
+            // Update main display
+            elements.days.textContent = formatted.days;
+            elements.hours.textContent = formatted.hours;
+            elements.minutes.textContent = formatted.minutes;
+            elements.seconds.textContent = formatted.seconds;
+            elements.milliseconds.textContent = formatted.milliseconds;
+            
+            // Update labels
+            elements.labelDays.textContent = formatted.days;
+            elements.labelHours.textContent = formatted.hours;
+            elements.labelMinutes.textContent = formatted.minutes;
+            elements.labelSeconds.textContent = formatted.seconds;
+        }
+
+        function updateProgress(timeLeft) {
+            const timePassed = state.totalTime - timeLeft;
+            const progressPercent = (timePassed / state.totalTime) * 100;
+            
+            elements.progressFill.style.width = `${progressPercent}%`;
+            elements.progressPercentage.textContent = `${Math.round(progressPercent)}%`;
+        }
+
+        function updateEffects(ms) {
+            // Pulsing effect for milliseconds
+            const msElement = elements.milliseconds;
+            msElement.style.opacity = 0.7 + (ms % 500 / 500) * 0.3;
+            
+            // Separator blinking
             const separators = document.querySelectorAll('.separator');
-            if (seconds % 2 === 0) {
-                separators.forEach(sep => {
-                    sep.style.opacity = '0.7';
-                });
-            } else {
-                separators.forEach(sep => {
-                    sep.style.opacity = '0.3';
-                });
+            const blinkIntensity = 0.5 + Math.sin(Date.now() / 500) * 0.3;
+            separators.forEach(sep => {
+                sep.style.opacity = blinkIntensity;
+            });
+        }
+
+        // ============================================
+        // COUNTDOWN COMPLETION
+        // ============================================
+
+        function endCountdown() {
+            console.log('✅ Countdown completed!');
+            
+            // Stop the interval
+            clearInterval(state.countdownInterval);
+            state.countdownInterval = null;
+            
+            // Set final display values
+            updateDisplay(0, 0, 0, 0, 0);
+            elements.progressFill.style.width = '100%';
+            elements.progressPercentage.textContent = '100%';
+            
+            // Visual effects for completion
+            triggerCompletionEffects();
+            
+            // Update status
+            elements.statusText.textContent = "Countdown complete • Redirecting...";
+            elements.statusText.style.color = "#00ffea";
+            elements.statusText.style.animation = "none";
+            
+            // Redirect after delay
+            setTimeout(() => {
+                if (!state.isRedirecting) {
+                    state.isRedirecting = true;
+                    console.log('🔄 Redirecting to target URL...');
+                    window.location.href = CONFIG.redirectUrl;
+                }
+            }, 3000);
+        }
+
+        function triggerCompletionEffects() {
+            // Add completion class for animations
+            elements.digitalDisplay.classList.add('completed');
+            
+            // Pulse animation
+            let pulseCount = 0;
+            const pulseInterval = setInterval(() => {
+                elements.digitalDisplay.style.transform = `scale(${1 + Math.sin(pulseCount * 0.5) * 0.05})`;
+                pulseCount++;
+                
+                if (pulseCount > 20) {
+                    clearInterval(pulseInterval);
+                    elements.digitalDisplay.style.transform = 'scale(1)';
+                }
+            }, 100);
+            
+            // Color transition to accent color
+            elements.digitalDisplay.style.color = "#00ffea";
+            document.querySelectorAll('.time-part').forEach(part => {
+                part.style.color = "#00ffea";
+            });
+        }
+
+        // ============================================
+        // STATUS MANAGEMENT
+        // ============================================
+
+        function rotateStatusMessage() {
+            setInterval(() => {
+                const now = Date.now();
+                if (now - state.lastStatusChange > 8000) { // Change every 8 seconds
+                    elements.statusText.textContent = CONFIG.statusMessages[state.statusIndex];
+                    state.statusIndex = (state.statusIndex + 1) % CONFIG.statusMessages.length;
+                    state.lastStatusChange = now;
+                    
+                    // Fade effect
+                    elements.statusText.style.opacity = '0';
+                    setTimeout(() => {
+                        elements.statusText.style.opacity = '1';
+                    }, 300);
+                }
+            }, 1000);
+        }
+
+        // ============================================
+        // VISUAL EFFECTS
+        // ============================================
+
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = Math.random() * 3 + 1 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.background = 'rgba(255, 255, 255, 0.1)';
+                particle.style.borderRadius = '50%';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animation = `float ${Math.random() * 10 + 10}s linear infinite`;
+                
+                // Add floating animation
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes float {
+                        0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.1; }
+                        25% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px) rotate(90deg); opacity: 0.3; }
+                        50% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px) rotate(180deg); opacity: 0.1; }
+                        75% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px) rotate(270deg); opacity: 0.3; }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                container.appendChild(particle);
+            }
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+
+        function formatNumber(num, digits) {
+            return num.toString().padStart(digits, '0');
+        }
+
+        function formatDuration(ms) {
+            const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            return `${days}d ${hours}h`;
+        }
+
+        // ============================================
+        // PERFORMANCE MONITORING
+        // ============================================
+
+        function monitorPerformance() {
+            let frameCount = 0;
+            let lastTime = Date.now();
+            
+            function checkFPS() {
+                frameCount++;
+                const currentTime = Date.now();
+                
+                if (currentTime - lastTime >= 1000) {
+                    const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                    if (fps < 50) {
+                        console.warn(`⚠️ Performance notice: ${fps} FPS detected`);
+                    }
+                    frameCount = 0;
+                    lastTime = currentTime;
+                }
+                requestAnimationFrame(checkFPS);
             }
             
-            // Efekt migania milisekund
-            millisecondsElement.style.opacity = (milliseconds % 200 < 100) ? '0.7' : '1';
+            checkFPS();
         }
-        
+
         // ============================================
-        // INICJALIZACJA
+        // ERROR HANDLING
         // ============================================
-        
-        let countdownInterval;
-        
-        function startCountdown() {
-            if (countdownInterval) clearInterval(countdownInterval);
-            countdownInterval = setInterval(updateCountdown, 10);
-            updateCountdown();
+
+        window.addEventListener('error', function(e) {
+            console.error('❌ System error:', e.error);
+            elements.statusText.textContent = "System error detected • Countdown may be affected";
+            elements.statusText.style.color = "#ff4444";
+        });
+
+        // ============================================
+        // RESPONSIVE ADJUSTMENTS
+        // ============================================
+
+        function adjustLayout() {
+            const width = window.innerWidth;
+            const display = elements.digitalDisplay;
+            
+            // Adjust font size for very small screens
+            if (width < 400) {
+                display.style.letterSpacing = '1px';
+                document.querySelector('.milliseconds').style.letterSpacing = '0.5px';
+            } else {
+                display.style.letterSpacing = '';
+                document.querySelector('.milliseconds').style.letterSpacing = '';
+            }
         }
-        
-        // Start
-        window.addEventListener('load', () => {
-            startCountdown();
-            // Dopasuj rozmiar po załadowaniu
-            setTimeout(adjustClock, 100);
-            setTimeout(adjustClock, 500);
-        });
-        
-        // Dopasuj przy zmianie rozmiaru
-        window.addEventListener('resize', () => {
-            setTimeout(adjustClock, 100);
-        });
-        
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+
+        window.addEventListener('load', initializeCountdown);
+        window.addEventListener('resize', adjustLayout);
         window.addEventListener('orientationchange', () => {
-            setTimeout(() => {
-                adjustClock();
-                startCountdown();
-            }, 300);
+            setTimeout(adjustLayout, 100);
         });
-        
-        // Regularne dostosowanie (co 5 sekund)
-        setInterval(adjustClock, 5000);
-        
+
         // ============================================
-        // EFEKTY DODATKOWE
+        // SYSTEM START
         // ============================================
-        
-        // Subtelne zmiany jasności
-        setInterval(() => {
-            const brightness = 0.95 + Math.random() * 0.1;
-            display.style.filter = `brightness(${brightness})`;
-        }, 3000);
+
+        console.log('🔧 Professional Countdown System v2.0');
+        console.log('📱 Responsive design enabled');
+        console.log('🎯 14-day countdown initialized');
         
     </script>
 </body>
