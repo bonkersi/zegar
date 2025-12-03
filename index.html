@@ -622,4 +622,70 @@
             const minuteAngle = ((60 - (minutes + seconds/60)) / 60) * 360;
             
             // Sekundowa wskazówka: pełny obrót co 60 sekund
-            const secondAngle = ((60 - (seconds + milliseconds/1000)) / 6
+            const secondAngle = ((60 - (seconds + milliseconds/1000)) / 60) * 360;
+            
+            // Zaktualizuj wskazówki analogowego zegara
+            hourHand.style.transform = `translate(-50%, -100%) rotate(${hourAngle}deg)`;
+            minuteHand.style.transform = `translate(-50%, -100%) rotate(${minuteAngle}deg)`;
+            secondHand.style.transform = `translate(-50%, -100%) rotate(${secondAngle}deg)`;
+            
+            // Zaktualizuj cyfrowy zegar
+            digitalDays.textContent = formatNumber(days);
+            digitalHours.textContent = formatNumber(hours);
+            digitalMinutes.textContent = formatNumber(minutes);
+            digitalSeconds.textContent = formatNumber(seconds);
+            digitalMilliseconds.textContent = formatMilliseconds(milliseconds);
+            
+            // Zaktualizuj pasek postępu
+            const timePassed = totalTime - timeDifference;
+            const progressPercent = (timePassed / totalTime) * 100;
+            progressFill.style.width = `${progressPercent}%`;
+            progressPercentage.textContent = `${Math.round(progressPercent)}%`;
+            
+            // Zmień status co 15 sekund
+            if (now.getTime() - lastStatusChange > 15000) {
+                statusText.textContent = statusMessages[statusIndex];
+                statusIndex = (statusIndex + 1) % statusMessages.length;
+                lastStatusChange = now.getTime();
+            }
+        }
+        
+        // Funkcja formatująca liczby do dwóch cyfr
+        function formatNumber(num) {
+            return num < 10 ? '0' + num : num;
+        }
+        
+        // Funkcja formatująca liczby do trzech cyfr (milisekundy)
+        function formatMilliseconds(num) {
+            if (num < 10) return '00' + num;
+            if (num < 100) return '0' + num;
+            return num;
+        }
+        
+        // Uruchom odliczanie co 10 milisekund
+        const countdownInterval = setInterval(updateCountdown, 10);
+        
+        // Inicjalne uruchomienie
+        updateCountdown();
+        
+        // Efekt pulsowania milisekund
+        setInterval(() => {
+            const msElement = document.getElementById('digital-milliseconds');
+            if (parseInt(msElement.textContent) < 500) {
+                msElement.style.opacity = '0.8';
+            } else {
+                msElement.style.opacity = '1';
+            }
+        }, 100);
+        
+        // Efekt pulsowania środka zegara
+        setInterval(() => {
+            const clockCenter = document.querySelector('.clock-center');
+            clockCenter.style.transform = 'translate(-50%, -50%) scale(1.1)';
+            setTimeout(() => {
+                clockCenter.style.transform = 'translate(-50%, -50%) scale(1)';
+            }, 300);
+        }, 2000);
+    </script>
+</body>
+</html>
