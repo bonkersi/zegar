@@ -34,9 +34,9 @@
             display: flex;
             flex-direction: row;
             flex-wrap: nowrap;
-            font-size: clamp(2rem, 10vw, 10rem);
+            font-size: clamp(1.5rem, 8vw, 7rem);
             font-weight: bold;
-            letter-spacing: 2px;
+            letter-spacing: 0.2em;
             white-space: nowrap;
             text-align: center;
         }
@@ -45,22 +45,19 @@
             margin: 0 0.05em;
         }
         
-        .separator {
-            margin: 0 0.05em;
-            font-weight: normal;
-        }
-        
         /* Dla bardzo małych ekranów */
         @media (max-width: 480px) {
             .countdown {
-                font-size: 1.8rem;
+                font-size: 1.3rem;
+                letter-spacing: 0.1em;
             }
         }
         
         /* Dla ekstremalnie wąskich ekranów */
         @media (max-width: 320px) {
             .countdown {
-                font-size: 1.4rem;
+                font-size: 1.1rem;
+                letter-spacing: 0.05em;
             }
         }
     </style>
@@ -81,37 +78,43 @@
             const now = new Date().getTime();
             const timeLeft = countdownDate - now;
             
-            // Obliczenia dni, godzin, minut i sekund
+            // Obliczenia dni, godzin, minut, sekund i milisekund
             const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
             const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            const milliseconds = Math.floor((timeLeft % 1000) / 10); // Pokazujemy tylko 2 cyfry milisekund
             
             // Formatowanie z zerami wiodącymi
-            const formatWithZero = (num) => num < 10 ? `0${num}` : num;
+            const formatWithZero = (num, digits = 2) => {
+                return num.toString().padStart(digits, '0');
+            };
             
-            // Aktualizacja wyświetlanego czasu
+            // Aktualizacja wyświetlanego czasu - TYLKO LICZBY (bez separatorów)
             document.getElementById("countdown").innerHTML = `
                 <span class="countdown-item">${formatWithZero(days)}</span>
-                <span class="separator">d</span>
                 <span class="countdown-item">${formatWithZero(hours)}</span>
-                <span class="separator">:</span>
                 <span class="countdown-item">${formatWithZero(minutes)}</span>
-                <span class="separator">:</span>
                 <span class="countdown-item">${formatWithZero(seconds)}</span>
+                <span class="countdown-item">${formatWithZero(milliseconds)}</span>
             `;
             
             // Jeśli czas minął
             if (timeLeft < 0) {
-                document.getElementById("countdown").innerHTML = "Czas minął!";
+                document.getElementById("countdown").innerHTML = 
+                    "<span class='countdown-item'>00</span>" +
+                    "<span class='countdown-item'>00</span>" +
+                    "<span class='countdown-item'>00</span>" +
+                    "<span class='countdown-item'>00</span>" +
+                    "<span class='countdown-item'>00</span>";
             }
         }
         
         // Inicjalizacja odliczania
         updateCountdown();
         
-        // Aktualizacja co sekundę
-        setInterval(updateCountdown, 1000);
+        // Aktualizacja co 10 milisekund dla płynnego odliczania
+        setInterval(updateCountdown, 10);
     </script>
 </body>
 </html>
