@@ -5,371 +5,253 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Odliczanie 14 Dni</title>
     <style>
-        /* Reset i podstawowe style */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            background-color: #000;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+            background: #111;
+            color: #fff;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            overflow: hidden;
+            overflow-x: hidden;
             padding: 20px;
         }
-        
-        /* Kontener główny */
-        .clock-container {
+
+        .container {
             width: 100%;
-            max-width: 100%;
+            max-width: 1200px;
             text-align: center;
+            padding: 20px;
         }
-        
-        /* Wyświetlacz LCD */
-        .lcd-display {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #111;
-            border: 4px solid #333;
-            border-radius: 15px;
-            padding: 20px 30px;
-            box-shadow: 
-                0 0 30px rgba(255, 255, 255, 0.1),
-                inset 0 0 20px rgba(0, 0, 0, 0.8);
-            min-width: 90%;
-            flex-wrap: nowrap;
-            gap: 10px;
+
+        h1 {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            margin-bottom: 20px;
+            color: #fff;
+            font-weight: 300;
+            letter-spacing: 1px;
         }
-        
-        /* Cyfry - użyjemy czcionki która wygląda jak 7-segmentowy wyświetlacz */
-        .time-unit {
+
+        .timer-container {
+            background: #222;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 30px 20px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .display {
             display: flex;
-            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
         }
-        
-        .digit {
-            font-family: 'Segment7', monospace;
-            font-weight: normal;
-            font-style: italic;
+
+        .unit-box {
+            background: #000;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 20px 10px;
+            min-width: 120px;
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .value {
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            font-weight: 400;
             color: #fff;
-            text-shadow: 
-                0 0 10px #fff,
-                0 0 20px #fff,
-                0 0 30px #0ff;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
             line-height: 1;
-            display: inline-block;
-            background-color: #000;
-            padding: 5px 2px;
-            border-radius: 5px;
+            margin-bottom: 5px;
+            font-variant-numeric: tabular-nums;
         }
-        
-        /* Rozmiary cyfr */
-        .days-digit, .hours-digit, .minutes-digit, .seconds-digit {
-            font-size: 15vw;
+
+        .milliseconds .value {
+            color: #999;
+            font-size: clamp(1.8rem, 5vw, 3rem);
         }
-        
-        .milliseconds-digit {
-            font-size: 7vw;
-            color: #fff;
-            text-shadow: 
-                0 0 5px #fff,
-                0 0 10px #fff;
+
+        .unit {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 300;
         }
-        
-        /* Separatory (dwukropki) */
+
         .separator {
-            font-size: 15vw;
-            color: #fff;
-            text-shadow: 
-                0 0 5px #fff,
-                0 0 10px #0ff;
-            margin: 0 2vw;
-            animation: blink 1s infinite;
-            line-height: 1;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            color: #666;
+            align-self: center;
+            margin: 0 5px;
+            font-family: 'Courier New', monospace;
         }
-        
-        /* Kropka przed milisekundami */
-        .milliseconds-dot {
-            font-size: 7vw;
-            color: #fff;
-            margin: 0 1vw;
-            line-height: 1;
+
+        .info {
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            color: #888;
+            margin-top: 20px;
+            line-height: 1.5;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
-        
-        /* Animacja mrugania dla dwukropków */
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 0.8rem;
+            color: #555;
         }
-        
-        /* Fallback czcionki Segment7 - generowana przez CSS */
-        @font-face {
-            font-family: 'Segment7';
-            src: local('Segment7'),
-                 url('data:font/woff2;base64,d09GMgABAAAAAAMcAA0AAAAABvgAAAKyAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP0ZGVE0cGh4GYACCbhEICoF8C4NCAAE2AiQDiC4Lg14ABCAFhG0HggcM/w4y9lGPlUUZ2LZ9CQE/WEjQNQ9pLCgUglCT/b9tTs9kJOX0LvRtbXFRtdm8+7gH0+o/Tm20t7Z2rN10sh8k0B8OSiM26zQ3ZbNufFb8pklQEdlFSrtImMMRc0Zia6CeyGYyh+hYxIIx0NYiCBtZSVBQkqX0P9u2LVmS/f9nw3rIOeSdnPvtpJnJgCjA5MoiiDABNjWNCKoIqklU2DnGis2CN2U2AWqgF2cD2gF2gOWnF4wDAdzspx1gF8QNdgJjgGgI3Mz/N7NMAvD+O2rqKuu2XQsHIm9oL4CCe9e9fSdu7Vw4OPn0v8yql/2jf2JzHEdu+mdF63+4ANz/DB4I/F8E/l8H/s9bE8C2C9JtgHTGJYYsBLOSUlEDQ/2OhMA2Akz7I5AD48R+PNnsx6fNTpC+tpl+8p1Zt9mf7zY7oX3b37u+mvp5+tqvqR/dU0O9Gpr3qYH1tOu8T+9V96kP9qlaGIIAwcwgSPcIdIcCgqFSjWh2W8yUaYlq05ZP6EYd5Q03aMc9ItC3v5u7/PsP7F/3L+xf98FfZv/F7q26sT2d1mY5tdP2k9owYH4ajK1uJ8x0F/4iBwMDAQEh7wiEyCF0JioCJUH0yLkEpoQS3R10BEYE0G4IFQ1Gg+gCxQ8sMIQ+YGQ4+7EJKw9A5CYz8aJYzS0aLC/cXQEA') format('woff2');
-            font-weight: normal;
-            font-style: italic;
-        }
-        
-        /* Jeśli czcionka Segment7 nie zadziała, użyjemy alternatywnej */
-        @supports not (font-variation-settings: normal) {
-            .digit {
-                font-family: 'Courier New', monospace;
-                font-weight: bold;
-                letter-spacing: 2px;
-            }
-        }
-        
-        /* Media Queries dla różnych rozdzielczości */
-        @media (max-width: 1200px) {
-            .days-digit, .hours-digit, .minutes-digit, .seconds-digit,
-            .separator {
-                font-size: 13vw;
-            }
-            .milliseconds-digit, .milliseconds-dot {
-                font-size: 6vw;
-            }
-        }
-        
+
         @media (max-width: 768px) {
-            .lcd-display {
-                padding: 15px 20px;
+            .display {
                 gap: 8px;
             }
-            .days-digit, .hours-digit, .minutes-digit, .seconds-digit,
-            .separator {
-                font-size: 11vw;
-            }
-            .milliseconds-digit, .milliseconds-dot {
-                font-size: 5vw;
+            .unit-box {
+                min-width: 90px;
+                padding: 15px 5px;
             }
         }
-        
+
         @media (max-width: 480px) {
-            .lcd-display {
-                padding: 10px 15px;
-                gap: 5px;
-                border-width: 3px;
+            .unit-box {
+                min-width: 70px;
+                padding: 12px 3px;
             }
-            .days-digit, .hours-digit, .minutes-digit, .seconds-digit,
+            .value {
+                font-size: 1.8rem;
+            }
             .separator {
-                font-size: 9vw;
+                font-size: 1.2rem;
             }
-            .milliseconds-digit, .milliseconds-dot {
-                font-size: 4vw;
-            }
-        }
-        
-        @media (max-width: 320px) {
-            .lcd-display {
-                padding: 8px 12px;
-                gap: 3px;
-            }
-            .days-digit, .hours-digit, .minutes-digit, .seconds-digit,
-            .separator {
-                font-size: 8vw;
-            }
-            .milliseconds-digit, .milliseconds-dot {
-                font-size: 3.5vw;
-            }
-        }
-        
-        /* Dla bardzo dużych ekranów */
-        @media (min-width: 2000px) {
-            .days-digit, .hours-digit, .minutes-digit, .seconds-digit,
-            .separator {
-                font-size: 12vw;
-            }
-            .milliseconds-digit, .milliseconds-dot {
-                font-size: 5vw;
-            }
-        }
-        
-        /* Zabezpieczenie - zawsze w jednej linii */
-        .clock-container, .lcd-display, .time-unit {
-            white-space: nowrap;
         }
     </style>
 </head>
 <body>
-    <div class="clock-container">
-        <div class="lcd-display" id="lcdDisplay">
-            <!-- Zegar będzie generowany przez JavaScript -->
+    <div class="container">
+        <h1>ODLICZANIE 14 DNI</h1>
+        
+        <div class="timer-container">
+            <div class="display">
+                <div class="unit-box">
+                    <div class="value" id="days">14</div>
+                    <div class="unit">Dni</div>
+                </div>
+                <div class="separator">:</div>
+                <div class="unit-box">
+                    <div class="value" id="hours">23</div>
+                    <div class="unit">Godzin</div>
+                </div>
+                <div class="separator">:</div>
+                <div class="unit-box">
+                    <div class="value" id="minutes">59</div>
+                    <div class="unit">Minut</div>
+                </div>
+                <div class="separator">:</div>
+                <div class="unit-box">
+                    <div class="value" id="seconds">59</div>
+                    <div class="unit">Sekund</div>
+                </div>
+                <div class="separator">.</div>
+                <div class="unit-box milliseconds">
+                    <div class="value" id="milliseconds">999</div>
+                    <div class="unit">ms</div>
+                </div>
+            </div>
+            
+            <div class="info">
+                Odliczanie 14 dni (1 209 600 000 ms).<br>
+                Po zakończeniu automatyczne przekierowanie na stronę docelową.
+            </div>
         </div>
+        
+        <div class="footer">Odliczanie co milisekundę</div>
     </div>
 
     <script>
-        // Czas docelowy: 14 dni od teraz
-        const targetTime = new Date().getTime() + (14 * 24 * 60 * 60 * 1000);
-        const redirectUrl = "https://bonkersi.github.io/BialaJaskolka.pl/index.html";
-        
+        // Konfiguracja
+        const TOTAL_DAYS = 14;
+        const TARGET_URL = "https://bonkersi.github.io/BialaJaskolka.pl/index.html";
+        const TOTAL_MS = TOTAL_DAYS * 24 * 60 * 60 * 1000;
+
+        // Czas końca (14 dni od teraz)
+        const endTime = new Date().getTime() + TOTAL_MS;
+
         // Elementy DOM
-        const lcdDisplay = document.getElementById('lcdDisplay');
-        
-        // Funkcja tworząca element cyfry
-        function createDigit(value, className = '') {
-            const span = document.createElement('span');
-            span.className = `digit ${className}`;
-            span.textContent = value;
-            return span;
+        const daysEl = document.getElementById('days');
+        const hoursEl = document.getElementById('hours');
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+        const millisecondsEl = document.getElementById('milliseconds');
+
+        // Formatowanie liczby
+        function formatNumber(num, length) {
+            return num.toString().padStart(length, '0');
         }
-        
-        // Funkcja tworząca separator (dwukropek)
-        function createSeparator() {
-            const span = document.createElement('span');
-            span.className = 'separator';
-            span.textContent = ':';
-            return span;
-        }
-        
-        // Funkcja tworząca kropkę przed milisekundami
-        function createMilliDot() {
-            const span = document.createElement('span');
-            span.className = 'milliseconds-dot';
-            span.textContent = '.';
-            return span;
-        }
-        
-        // Funkcja tworząca i aktualizująca wyświetlacz
-        function updateDisplay(days, hours, minutes, seconds, milliseconds) {
-            // Czyścimy wyświetlacz
-            lcdDisplay.innerHTML = '';
-            
-            // Formatujemy wartości na 2 cyfry (dni też na 2 cyfry)
-            const daysStr = days.toString().padStart(2, '0');
-            const hoursStr = hours.toString().padStart(2, '0');
-            const minutesStr = minutes.toString().padStart(2, '0');
-            const secondsStr = seconds.toString().padStart(2, '0');
-            const msStr = milliseconds.toString().padStart(3, '0');
-            
-            // DNI (2 cyfry)
-            const daysDiv = document.createElement('div');
-            daysDiv.className = 'time-unit';
-            daysDiv.appendChild(createDigit(daysStr[0], 'days-digit'));
-            daysDiv.appendChild(createDigit(daysStr[1], 'days-digit'));
-            lcdDisplay.appendChild(daysDiv);
-            
-            // Separator
-            lcdDisplay.appendChild(createSeparator());
-            
-            // GODZINY (2 cyfry)
-            const hoursDiv = document.createElement('div');
-            hoursDiv.className = 'time-unit';
-            hoursDiv.appendChild(createDigit(hoursStr[0], 'hours-digit'));
-            hoursDiv.appendChild(createDigit(hoursStr[1], 'hours-digit'));
-            lcdDisplay.appendChild(hoursDiv);
-            
-            // Separator
-            lcdDisplay.appendChild(createSeparator());
-            
-            // MINUTY (2 cyfry)
-            const minutesDiv = document.createElement('div');
-            minutesDiv.className = 'time-unit';
-            minutesDiv.appendChild(createDigit(minutesStr[0], 'minutes-digit'));
-            minutesDiv.appendChild(createDigit(minutesStr[1], 'minutes-digit'));
-            lcdDisplay.appendChild(minutesDiv);
-            
-            // Separator
-            lcdDisplay.appendChild(createSeparator());
-            
-            // SEKUNDY (2 cyfry)
-            const secondsDiv = document.createElement('div');
-            secondsDiv.className = 'time-unit';
-            secondsDiv.appendChild(createDigit(secondsStr[0], 'seconds-digit'));
-            secondsDiv.appendChild(createDigit(secondsStr[1], 'seconds-digit'));
-            lcdDisplay.appendChild(secondsDiv);
-            
-            // Kropka przed milisekundami
-            lcdDisplay.appendChild(createMilliDot());
-            
-            // MILISEKUNDY (3 cyfry)
-            const msDiv = document.createElement('div');
-            msDiv.className = 'time-unit';
-            msDiv.appendChild(createDigit(msStr[0], 'milliseconds-digit'));
-            msDiv.appendChild(createDigit(msStr[1], 'milliseconds-digit'));
-            msDiv.appendChild(createDigit(msStr[2], 'milliseconds-digit'));
-            lcdDisplay.appendChild(msDiv);
-        }
-        
-        // Funkcja aktualizująca zegar
-        function updateClock() {
+
+        // Aktualizacja odliczania
+        function updateCountdown() {
             const now = new Date().getTime();
-            const timeRemaining = targetTime - now;
-            
-            // Jeśli czas minął, przekieruj
-            if (timeRemaining <= 0) {
-                window.location.href = redirectUrl;
-                return;
+            let diff = endTime - now;
+
+            // Sprawdź czy czas minął
+            if (diff <= 0) {
+                diff = 0;
+                // Przekierowanie natychmiast po zakończeniu
+                window.location.href = TARGET_URL;
             }
-            
-            // Obliczanie pozostałego czasu
-            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-            const milliseconds = Math.floor(timeRemaining % 1000);
-            
-            // Aktualizacja wyświetlacza
-            updateDisplay(days, hours, minutes, seconds, milliseconds);
-            
-            // Kontynuuj odświeżanie
-            requestAnimationFrame(updateClock);
+
+            // Oblicz jednostki czasu
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            const milliseconds = diff % 1000;
+
+            // Aktualizuj UI
+            daysEl.textContent = formatNumber(days, 2);
+            hoursEl.textContent = formatNumber(hours, 2);
+            minutesEl.textContent = formatNumber(minutes, 2);
+            secondsEl.textContent = formatNumber(seconds, 2);
+            millisecondsEl.textContent = formatNumber(milliseconds, 3);
         }
-        
-        // Funkcja dostosowująca rozmiar czcionki do ekranu
-        function adjustFontSize() {
-            const display = document.getElementById('lcdDisplay');
-            const container = document.querySelector('.clock-container');
+
+        // Inicjalizacja i uruchomienie interwału
+        updateCountdown();
+        const interval = setInterval(updateCountdown, 1);
+
+        // Responsywność - zabezpieczenie przed przycięciem
+        function adjustScale() {
+            const container = document.querySelector('.container');
+            const vw = window.innerWidth;
+            const containerWidth = container.scrollWidth;
             
-            // Sprawdzamy czy mieści się w jednej linii
-            if (display.scrollWidth > container.clientWidth * 0.95) {
-                // Obliczamy współczynnik skalowania
-                const scale = (container.clientWidth * 0.95) / display.scrollWidth;
-                
-                // Znajdujemy wszystkie cyfry i zmieniamy ich rozmiar
-                const digits = document.querySelectorAll('.digit, .separator, .milliseconds-dot');
-                digits.forEach(digit => {
-                    const currentSize = parseFloat(window.getComputedStyle(digit).fontSize);
-                    digit.style.fontSize = (currentSize * scale) + 'px';
-                });
+            if (containerWidth > vw) {
+                const scale = vw / containerWidth;
+                container.style.transform = `scale(${scale})`;
             } else {
-                // Resetujemy do domyślnych rozmiarów
-                const digits = document.querySelectorAll('.digit, .separator, .milliseconds-dot');
-                digits.forEach(digit => {
-                    digit.style.fontSize = '';
-                });
+                container.style.transform = 'scale(1)';
             }
         }
-        
-        // Inicjalizacja
-        updateClock();
-        
-        // Dostosuj rozmiar przy zmianie wielkości okna
-        window.addEventListener('resize', adjustFontSize);
-        window.addEventListener('load', () => {
-            // Poczekaj chwilę na załadowanie czcionki
-            setTimeout(adjustFontSize, 100);
-            setTimeout(adjustFontSize, 500);
+
+        window.addEventListener('resize', adjustScale);
+        window.addEventListener('load', adjustScale);
+        setTimeout(adjustScale, 100);
+
+        // Zatrzymanie interwału przy opuszczeniu strony
+        window.addEventListener('beforeunload', () => {
+            clearInterval(interval);
         });
-        
-        // Regularne sprawdzanie
-        setInterval(adjustFontSize, 1000);
-        
-        // Efekt migotania dla realistycznego wyświetlacza
-        setInterval(() => {
-            const digits = document.querySelectorAll('.digit');
-            const intensity = Math.random() * 0.1 + 0.95;
-            
-            digits.forEach(digit => {
-                digit.style.opacity = intensity;
-            });
-        }, 200);
     </script>
 </body>
 </html>
