@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Zegar Odliczający</title>
+    <title>Zegar Odliczający 14 Dni</title>
     <style>
         * {
             margin: 0;
@@ -13,86 +13,90 @@
         
         body {
             background-color: #000;
-            font-family: 'Courier New', monospace;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             overflow: hidden;
-            padding: 10px;
+            font-family: 'Segment7', monospace;
         }
         
-        .retro-clock-container {
+        /* Font segmentowany podobny do LCD */
+        @font-face {
+            font-family: 'Segment7';
+            src: url('https://fonts.gstatic.com/s/segment7/v2/rP2cp3a7US1u6k4TrGFxlkNqMk.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
+        .clock-container {
             width: 100%;
-            max-width: 1200px;
             text-align: center;
-        }
-        
-        .lcd-display {
-            display: inline-flex;
-            flex-wrap: nowrap;
-            background-color: #000;
-            border-radius: 8px;
-            padding: 10px 15px;
-            border: 2px solid #333;
-            position: relative;
             white-space: nowrap;
             overflow: hidden;
         }
         
-        .time-segment {
+        /* Główny kontener zegara */
+        .lcd-clock {
             display: inline-block;
+            background-color: #000;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 3px solid #333;
+            box-shadow: 
+                inset 0 0 20px rgba(0, 0, 0, 0.8),
+                0 0 30px rgba(255, 255, 255, 0.1);
             position: relative;
-            flex-shrink: 0;
+            min-width: 90%;
         }
         
-        .digit {
-            display: inline-block;
-            font-family: 'Arial Black', 'Arial Bold', sans-serif;
-            font-weight: 900;
-            color: #ffffff;
-            letter-spacing: 0;
+        /* Cyfry - STYL Z OBRAZKA */
+        .lcd-digit {
+            font-family: 'Segment7', 'Courier New', monospace;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 
+                0 0 5px #fff,
+                0 0 10px #fff;
+            letter-spacing: 1px;
             position: relative;
-            line-height: 1;
+            display: inline-block;
         }
         
-        .colon {
-            display: inline-block;
-            font-family: 'Arial Black', 'Arial Bold', sans-serif;
-            font-weight: 900;
-            color: #ffffff;
+        /* Specjalne cyfry dla dni (2 cyfry) */
+        .days-digits {
+            font-size: 22vw;
+            line-height: 0.8;
+        }
+        
+        /* Pozostałe cyfry (godziny, minuty, sekundy) */
+        .time-digits {
+            font-size: 22vw;
+            line-height: 0.8;
+        }
+        
+        /* Milisekundy - mniejsze */
+        .milliseconds-digits {
+            font-size: 11vw;
+            line-height: 0.8;
             vertical-align: top;
-            position: relative;
-            line-height: 1;
-            animation: blink 1s infinite;
+            margin-left: 1vw;
         }
         
-        .milliseconds {
+        /* Dwukropki - styl jak na obrazku */
+        .colon {
+            font-family: 'Segment7', 'Courier New', monospace;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 
+                0 0 5px #fff,
+                0 0 10px #fff;
             display: inline-block;
-            font-family: 'Arial Black', 'Arial Bold', sans-serif;
-            font-weight: 900;
-            color: #ffffff;
-            position: relative;
-            line-height: 1;
-        }
-        
-        /* GŁÓWNE ROZMIARY - ADAPTACYJNE */
-        /* Domyślne rozmiary dla desktop */
-        .digit, .colon {
-            font-size: clamp(40px, 10vw, 120px);
-        }
-        
-        .milliseconds {
-            font-size: clamp(20px, 5vw, 60px);
-        }
-        
-        /* MARGINESY I PADDINGI DLA ZACHOWANIA LINII */
-        .time-segment {
-            margin: 0 1px;
-        }
-        
-        .milliseconds {
-            margin-left: 2px;
+            vertical-align: top;
+            margin: 0 1vw;
+            font-size: 22vw;
+            line-height: 0.8;
+            animation: blink 1s infinite;
         }
         
         @keyframes blink {
@@ -100,124 +104,125 @@
             50% { opacity: 0.3; }
         }
         
-        /* MEDIA QUERIES DLA SPECYFICZNYCH ROZDZIELCZOŚCI */
-        
-        /* Laptopy (1024px - 1440px) */
-        @media (min-width: 1024px) and (max-width: 1440px) {
-            .digit, .colon {
-                font-size: clamp(50px, 8vw, 90px);
-            }
-            .milliseconds {
-                font-size: clamp(25px, 4vw, 45px);
-            }
-            .lcd-display {
-                padding: 8px 12px;
-            }
-        }
-        
-        /* Tablety (768px - 1023px) */
-        @media (min-width: 768px) and (max-width: 1023px) {
-            .digit, .colon {
-                font-size: clamp(45px, 9vw, 80px);
-            }
-            .milliseconds {
-                font-size: clamp(22px, 4.5vw, 40px);
-            }
-            .lcd-display {
-                padding: 6px 10px;
-            }
-        }
-        
-        /* Telefony (480px - 767px) */
-        @media (min-width: 480px) and (max-width: 767px) {
-            .digit, .colon {
-                font-size: clamp(35px, 8vw, 65px);
-            }
-            .milliseconds {
-                font-size: clamp(17px, 4vw, 32px);
-            }
-            .lcd-display {
-                padding: 5px 8px;
-                border-radius: 6px;
-            }
-        }
-        
-        /* Małe telefony (< 480px) */
-        @media (max-width: 479px) {
-            .digit, .colon {
-                font-size: clamp(30px, 7.5vw, 50px);
-            }
-            .milliseconds {
-                font-size: clamp(15px, 3.8vw, 25px);
-            }
-            .lcd-display {
-                padding: 4px 6px;
-                border-radius: 5px;
-                border-width: 1px;
-            }
-        }
-        
-        /* Bardzo szerokie ekrany (> 1920px) */
-        @media (min-width: 1921px) {
-            .digit, .colon {
-                font-size: clamp(60px, 5vw, 150px);
-            }
-            .milliseconds {
-                font-size: clamp(30px, 2.5vw, 75px);
-            }
-            .lcd-display {
-                padding: 15px 20px;
-                border-radius: 12px;
-                border-width: 3px;
-            }
-        }
-        
-        /* ZABEZPIECZENIE PRZED ZAWIJANIEM */
-        .retro-clock-container {
-            overflow-x: auto;
-            overflow-y: hidden;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        .retro-clock-container::-webkit-scrollbar {
-            display: none;
-        }
-        
-        /* DODATKOWE STYLE DLA LEPSZEJ WIDOCZNOŚCI */
-        .lcd-display {
-            box-shadow: 
-                inset 0 0 10px rgba(255, 255, 255, 0.05),
-                0 0 15px rgba(255, 255, 255, 0.05);
-        }
-        
-        .digit, .colon, .milliseconds {
+        /* Kropka przed milisekundami */
+        .milliseconds-dot {
+            font-family: 'Segment7', 'Courier New', monospace;
+            font-weight: bold;
+            color: #fff;
             text-shadow: 
-                0 0 3px #fff,
                 0 0 5px #fff,
-                0 0 7px rgba(255, 255, 255, 0.5);
+                0 0 10px #fff;
+            display: inline-block;
+            vertical-align: top;
+            margin-left: 1vw;
+            font-size: 11vw;
+            line-height: 0.8;
+        }
+        
+        /* MEDIA QUERIES dla idealnego dopasowania do każdej rozdzielczości */
+        
+        /* Bardzo duże ekrany (TV, monitory 4K) */
+        @media (min-width: 2560px) {
+            .days-digits, .time-digits, .colon {
+                font-size: 18vw;
+            }
+            .milliseconds-digits, .milliseconds-dot {
+                font-size: 9vw;
+            }
+        }
+        
+        /* Laptopy i tablety poziomo */
+        @media (max-width: 1200px) and (min-width: 769px) {
+            .days-digits, .time-digits, .colon {
+                font-size: 20vw;
+            }
+            .milliseconds-digits, .milliseconds-dot {
+                font-size: 10vw;
+            }
+        }
+        
+        /* Tablety pionowo */
+        @media (max-width: 768px) and (min-width: 481px) {
+            .days-digits, .time-digits, .colon {
+                font-size: 18vw;
+            }
+            .milliseconds-digits, .milliseconds-dot {
+                font-size: 9vw;
+            }
+        }
+        
+        /* Telefony poziomo */
+        @media (max-width: 480px) and (min-height: 320px) {
+            .days-digits, .time-digits, .colon {
+                font-size: 16vw;
+            }
+            .milliseconds-digits, .milliseconds-dot {
+                font-size: 8vw;
+            }
+        }
+        
+        /* Telefony pionowo */
+        @media (max-width: 320px) {
+            .days-digits, .time-digits, .colon {
+                font-size: 14vw;
+            }
+            .milliseconds-digits, .milliseconds-dot {
+                font-size: 7vw;
+            }
+        }
+        
+        /* Ekrany bardzo wąskie */
+        @media (max-width: 240px) {
+            .days-digits, .time-digits, .colon {
+                font-size: 12vw;
+            }
+            .milliseconds-digits, .milliseconds-dot {
+                font-size: 6vw;
+            }
+        }
+        
+        /* Zabezpieczenie przed zawijaniem linii */
+        .clock-row {
+            display: block;
+            width: 100%;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="retro-clock-container">
-        <div class="lcd-display">
-            <div class="time-segment">
-                <span id="days" class="digit">14</span>
-            </div>
-            <span class="colon">:</span>
-            <div class="time-segment">
-                <span id="hours" class="digit">00</span>
-            </div>
-            <span class="colon">:</span>
-            <div class="time-segment">
-                <span id="minutes" class="digit">00</span>
-            </div>
-            <span class="colon">:</span>
-            <div class="time-segment">
-                <span id="seconds" class="digit">00</span>
-            </div>
-            <div class="time-segment">
-                <span id="milliseconds" class="milliseconds">.000</span>
+    <div class="clock-container">
+        <div class="clock-row">
+            <div class="lcd-clock">
+                <!-- Dni -->
+                <span id="days1" class="lcd-digit days-digits">1</span>
+                <span id="days2" class="lcd-digit days-digits">4</span>
+                
+                <!-- Dwukropek -->
+                <span class="colon">:</span>
+                
+                <!-- Godziny -->
+                <span id="hours1" class="lcd-digit time-digits">0</span>
+                <span id="hours2" class="lcd-digit time-digits">0</span>
+                
+                <!-- Dwukropek -->
+                <span class="colon">:</span>
+                
+                <!-- Minuty -->
+                <span id="minutes1" class="lcd-digit time-digits">0</span>
+                <span id="minutes2" class="lcd-digit time-digits">0</span>
+                
+                <!-- Dwukropek -->
+                <span class="colon">:</span>
+                
+                <!-- Sekundy -->
+                <span id="seconds1" class="lcd-digit time-digits">0</span>
+                <span id="seconds2" class="lcd-digit time-digits">0</span>
+                
+                <!-- Kropka i milisekundy -->
+                <span class="milliseconds-dot">.</span>
+                <span id="milliseconds1" class="lcd-digit milliseconds-digits">0</span>
+                <span id="milliseconds2" class="lcd-digit milliseconds-digits">0</span>
+                <span id="milliseconds3" class="lcd-digit milliseconds-digits">0</span>
             </div>
         </div>
     </div>
@@ -226,25 +231,6 @@
         // Czas docelowy: 14 dni od teraz
         const targetTime = new Date().getTime() + (14 * 24 * 60 * 60 * 1000);
         const redirectUrl = "https://bonkersi.github.io/BialaJaskolka.pl/index.html";
-        
-        // Elementy DOM
-        const daysElement = document.getElementById('days');
-        const hoursElement = document.getElementById('hours');
-        const minutesElement = document.getElementById('minutes');
-        const secondsElement = document.getElementById('seconds');
-        const millisecondsElement = document.getElementById('milliseconds');
-        
-        // Funkcja formatująca liczby do 2 cyfr
-        function formatTwoDigits(number) {
-            return number < 10 ? '0' + number : number;
-        }
-        
-        // Funkcja formatująca liczby do 3 cyfr (milisekundy)
-        function formatThreeDigits(number) {
-            if (number < 10) return '00' + number;
-            if (number < 100) return '0' + number;
-            return number;
-        }
         
         // Funkcja aktualizująca zegar
         function updateClock() {
@@ -264,12 +250,31 @@
             const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
             const milliseconds = Math.floor(timeRemaining % 1000);
             
-            // Aktualizacja wyświetlania
-            daysElement.textContent = formatTwoDigits(days);
-            hoursElement.textContent = formatTwoDigits(hours);
-            minutesElement.textContent = formatTwoDigits(minutes);
-            secondsElement.textContent = formatTwoDigits(seconds);
-            millisecondsElement.textContent = '.' + formatThreeDigits(milliseconds);
+            // Formatowanie dni (2 cyfry)
+            const daysStr = days.toString().padStart(2, '0');
+            document.getElementById('days1').textContent = daysStr[0];
+            document.getElementById('days2').textContent = daysStr[1];
+            
+            // Formatowanie godzin (2 cyfry)
+            const hoursStr = hours.toString().padStart(2, '0');
+            document.getElementById('hours1').textContent = hoursStr[0];
+            document.getElementById('hours2').textContent = hoursStr[1];
+            
+            // Formatowanie minut (2 cyfry)
+            const minutesStr = minutes.toString().padStart(2, '0');
+            document.getElementById('minutes1').textContent = minutesStr[0];
+            document.getElementById('minutes2').textContent = minutesStr[1];
+            
+            // Formatowanie sekund (2 cyfry)
+            const secondsStr = seconds.toString().padStart(2, '0');
+            document.getElementById('seconds1').textContent = secondsStr[0];
+            document.getElementById('seconds2').textContent = secondsStr[1];
+            
+            // Formatowanie milisekund (3 cyfry)
+            const msStr = milliseconds.toString().padStart(3, '0');
+            document.getElementById('milliseconds1').textContent = msStr[0];
+            document.getElementById('milliseconds2').textContent = msStr[1];
+            document.getElementById('milliseconds3').textContent = msStr[2];
             
             // Kontynuuj animację
             requestAnimationFrame(updateClock);
@@ -278,54 +283,41 @@
         // Inicjalizacja zegara
         updateClock();
         
-        // Funkcja dostosowująca rozmiar czcionki na podstawie szerokości
+        // Zabezpieczenie przed zawijaniem linii - dynamiczne dostosowanie rozmiaru
         function adjustFontSize() {
-            const container = document.querySelector('.retro-clock-container');
-            const display = document.querySelector('.lcd-display');
-            const digits = document.querySelectorAll('.digit, .colon');
-            const millis = document.querySelectorAll('.milliseconds');
+            const clock = document.querySelector('.lcd-clock');
+            const container = document.querySelector('.clock-container');
+            const digits = document.querySelectorAll('.lcd-digit, .colon, .milliseconds-dot');
             
-            const containerWidth = container.offsetWidth;
-            const displayWidth = display.scrollWidth;
+            // Reset rozmiaru
+            clock.style.fontSize = '';
             
-            // Jeśli zegar jest za szeroki dla kontenera, zmniejszamy czcionkę
-            if (displayWidth > containerWidth * 0.95) {
-                const scaleFactor = (containerWidth * 0.95) / displayWidth;
+            // Sprawdź czy zawija się linia
+            if (clock.scrollWidth > container.clientWidth * 0.95) {
+                // Oblicz potrzebną skalę
+                const scale = (container.clientWidth * 0.95) / clock.scrollWidth;
                 
+                // Zastosuj skalę do wszystkich elementów
                 digits.forEach(digit => {
                     const currentSize = parseFloat(window.getComputedStyle(digit).fontSize);
-                    digit.style.fontSize = (currentSize * scaleFactor) + 'px';
-                });
-                
-                millis.forEach(milli => {
-                    const currentSize = parseFloat(window.getComputedStyle(milli).fontSize);
-                    milli.style.fontSize = (currentSize * scaleFactor) + 'px';
-                });
-            } else {
-                // Resetuj rozmiary jeśli mieścimy się w kontenerze
-                digits.forEach(digit => {
-                    digit.style.fontSize = '';
-                });
-                
-                millis.forEach(milli => {
-                    milli.style.fontSize = '';
+                    digit.style.fontSize = (currentSize * scale) + 'px';
                 });
             }
         }
         
-        // Dostosuj rozmiar przy ładowaniu i zmianie rozmiaru okna
-        window.addEventListener('load', adjustFontSize);
+        // Dostosuj rozmiar przy zmianie wielkości okna
         window.addEventListener('resize', adjustFontSize);
+        window.addEventListener('load', adjustFontSize);
         
-        // Dodatkowo sprawdzaj co sekundę dla pewności
-        setInterval(adjustFontSize, 1000);
-        
-        // Prosty efekt migotania
+        // Dodanie efektu migotania jak w starych wyświetlaczach
         setInterval(() => {
-            const colon = document.querySelector('.colon');
-            const blink = Math.random() > 0.5;
-            colon.style.opacity = blink ? '1' : '0.3';
-        }, 500);
+            const digits = document.querySelectorAll('.lcd-digit');
+            const flicker = Math.random() * 0.1 + 0.95;
+            
+            digits.forEach(digit => {
+                digit.style.opacity = flicker;
+            });
+        }, 100);
     </script>
 </body>
 </html>
