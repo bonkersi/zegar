@@ -10,8 +10,10 @@
     <style>
         :root {
             --digit-color: #ff0000;
-            --digit-glow: rgba(255, 0, 0, 0.8);
+            --digit-glow: rgba(255, 0, 0, 0.9);
             --bg-color: #000000;
+            --segment-bg: #111111;
+            --segment-gap: #050505;
         }
         
         * {
@@ -36,6 +38,7 @@
             color: var(--digit-color);
             padding: 0;
             margin: 0;
+            touch-action: manipulation;
         }
         
         .clock-wrapper {
@@ -45,74 +48,103 @@
             justify-content: center;
             align-items: center;
             position: relative;
-            padding: 20px;
+            padding: 10px;
+            min-height: 100vh;
         }
         
         .clock-container {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 2px;
-            background: #0a0a0a;
-            padding: 20px 25px;
-            border-radius: 10px;
+            background: #000;
+            padding: 15px 20px;
+            border-radius: 12px;
             box-shadow: 
-                0 0 0 2px #222,
-                0 0 50px var(--digit-glow),
-                inset 0 0 30px rgba(255, 0, 0, 0.15);
+                0 0 0 3px #222,
+                0 0 60px var(--digit-glow),
+                inset 0 0 40px rgba(0, 0, 0, 0.8);
             position: relative;
+            border: 2px solid #333;
             min-width: min-content;
-            white-space: nowrap;
             transform-origin: center;
-            border: 1px solid #333;
         }
         
-        .digit-container {
-            display: inline-flex;
+        /* KANCIASTE SEGMENTY - kwadratowe cyfry */
+        .segment-digit {
             position: relative;
-        }
-        
-        .segment-display {
-            position: relative;
-            background: #050505;
-            border-radius: 4px;
+            width: 0.8em;
+            height: 1.2em;
             margin: 0 1px;
+            background: var(--segment-bg);
+            border-radius: 3px;
             overflow: hidden;
-            min-width: 1.2em;
-            text-align: center;
-            padding: 5px 3px;
             box-shadow: 
-                inset 0 0 10px rgba(0, 0, 0, 0.8),
-                0 0 5px rgba(255, 0, 0, 0.2);
+                inset 0 0 15px rgba(0, 0, 0, 0.9),
+                0 0 5px rgba(255, 0, 0, 0.3);
         }
         
-        /* WIĘKSZE CYFRY - optymalizacja */
-        .led-digit {
+        /* Cyfra wewnątrz segmentu - KANCIASTA */
+        .digit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             font-family: 'Share Tech Mono', monospace;
             font-weight: 900;
             color: var(--digit-color);
             text-shadow: 
-                0 0 10px var(--digit-color),
-                0 0 20px var(--digit-glow),
-                0 0 30px rgba(255, 0, 0, 0.5);
+                0 0 12px var(--digit-color),
+                0 0 25px var(--digit-glow),
+                0 0 40px rgba(255, 0, 0, 0.6);
             line-height: 1;
-            position: relative;
-            display: inline-block;
+            font-size: 1.5em;
+            width: 100%;
             text-align: center;
-            font-size: calc(10vw + 10vh); /* Dynamiczny rozmiar */
-            min-width: 0.7em;
+            letter-spacing: 0;
         }
         
-        /* Większe separatory */
+        /* Efekt segmentów LED wewnątrz cyfry */
+        .digit::before {
+            content: '';
+            position: absolute;
+            top: 15%;
+            left: 10%;
+            right: 10%;
+            bottom: 15%;
+            background: 
+                linear-gradient(
+                    to bottom,
+                    transparent 0%,
+                    rgba(255, 0, 0, 0.08) 20%,
+                    rgba(255, 0, 0, 0.05) 50%,
+                    rgba(255, 0, 0, 0.08) 80%,
+                    transparent 100%
+                );
+            border-radius: 2px;
+            pointer-events: none;
+            z-index: -1;
+            border: 1px solid rgba(255, 0, 0, 0.1);
+        }
+        
+        /* Kontener dla pary cyfr (np. 12 dni) */
+        .digit-pair {
+            display: flex;
+            margin: 0 2px;
+        }
+        
+        /* Separatory - większe i kwadratowe */
         .separator {
             color: #ff3333;
-            text-shadow: 0 0 10px #ff3333;
+            text-shadow: 0 0 15px #ff3333;
             font-weight: 900;
-            margin: 0 3px;
+            margin: 0 4px;
             line-height: 1;
+            font-size: 1.8em;
+            position: relative;
+            top: -0.05em;
             opacity: 0.9;
-            font-size: calc(8vw + 8vh);
-            padding-bottom: 0.1em;
+            width: 0.3em;
+            text-align: center;
         }
         
         .colon {
@@ -121,61 +153,80 @@
         
         .dot {
             color: #990000;
-            margin: 0 2px;
+            font-size: 1.5em;
         }
         
-        /* Milisekundy - większe ale trochę mniejsze niż główne cyfry */
+        /* Milisekundy - mniejsze kwadraty */
         .ms-container {
-            display: inline-flex;
-            gap: 1px;
-            margin-left: 3px;
-            align-items: flex-end;
+            display: flex;
+            margin-left: 4px;
+            align-items: center;
+        }
+        
+        .ms-segment {
+            width: 0.6em;
+            height: 0.9em;
+            margin: 0 0.5px;
+            background: var(--segment-bg);
+            border-radius: 2px;
+            overflow: hidden;
+            box-shadow: 
+                inset 0 0 10px rgba(0, 0, 0, 0.9),
+                0 0 3px rgba(255, 0, 0, 0.3);
         }
         
         .ms-digit {
+            font-size: 1em;
             color: #cc0000;
-            text-shadow: 0 0 8px #cc0000;
-            font-size: calc(5vw + 5vh);
+            text-shadow: 0 0 10px #cc0000;
         }
         
-        /* Segment display effect */
-        .led-digit::before {
+        /* Główny kontener wewnętrzny */
+        .clock-inner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+            padding: 5px 0;
+        }
+        
+        /* Metalowa ramka wokół każdego segmentu */
+        .segment-digit::before,
+        .ms-segment::before {
             content: '';
             position: absolute;
-            top: 15%;
-            left: 10%;
-            right: 10%;
-            bottom: 15%;
-            background: linear-gradient(
-                to bottom,
-                rgba(255, 0, 0, 0.1) 0%,
-                rgba(255, 0, 0, 0.05) 50%,
-                rgba(255, 0, 0, 0.1) 100%
-            );
-            border-radius: 2px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 1px solid rgba(255, 0, 0, 0.15);
+            border-radius: 3px;
             pointer-events: none;
-            z-index: 0;
+            box-shadow: 
+                inset 0 0 10px rgba(0, 0, 0, 0.5),
+                0 0 2px rgba(255, 0, 0, 0.2);
         }
         
-        /* Glowing effect */
-        .glow-effect {
+        /* Efekt świecenia wokół zegara */
+        .outer-glow {
             position: absolute;
-            top: -5px;
-            left: -5px;
-            right: -5px;
-            bottom: -5px;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
             background: radial-gradient(
                 ellipse at center,
-                rgba(255, 0, 0, 0.2) 0%,
+                rgba(255, 0, 0, 0.25) 0%,
                 transparent 70%
             );
-            border-radius: 15px;
+            border-radius: 20px;
             z-index: -1;
-            filter: blur(10px);
+            filter: blur(15px);
         }
         
-        /* LCD effect */
-        .lcd-effect {
+        /* Siatka LCD */
+        .lcd-grid {
             position: absolute;
             top: 0;
             left: 0;
@@ -184,40 +235,40 @@
             background: 
                 repeating-linear-gradient(
                     0deg,
-                    rgba(255, 255, 255, 0.03) 0px,
-                    rgba(255, 255, 255, 0.03) 1px,
+                    rgba(255, 255, 255, 0.04) 0px,
+                    rgba(255, 255, 255, 0.04) 1px,
                     transparent 1px,
-                    transparent 2px
+                    transparent 3px
                 ),
                 repeating-linear-gradient(
                     90deg,
-                    rgba(255, 255, 255, 0.02) 0px,
-                    rgba(255, 255, 255, 0.02) 1px,
+                    rgba(255, 255, 255, 0.03) 0px,
+                    rgba(255, 255, 255, 0.03) 1px,
                     transparent 1px,
-                    transparent 3px
+                    transparent 4px
                 );
             pointer-events: none;
             z-index: 1;
-            border-radius: 10px;
-            opacity: 0.5;
+            border-radius: 12px;
+            opacity: 0.6;
         }
         
-        /* Scan line */
+        /* Linia skanująca */
         .scan-line {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 3px;
+            height: 4px;
             background: linear-gradient(
                 to right,
                 transparent,
-                rgba(255, 0, 0, 0.4),
+                rgba(255, 0, 0, 0.5),
                 transparent
             );
-            animation: scan 3s linear infinite;
+            animation: scan 3.5s linear infinite;
             z-index: 2;
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
         }
         
         @keyframes scan {
@@ -225,155 +276,183 @@
             100% { top: 100%; }
         }
         
-        /* Nowe: Kontener wewnętrzny dla lepszego wyśrodkowania */
-        .clock-inner {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            z-index: 3;
+        /* Dynamiczne skalowanie cyfr */
+        .digit {
+            font-size: calc(8vw + 8vh);
         }
         
-        /* Media queries dla lepszego skalowania */
-        @media (max-width: 768px) {
+        .separator {
+            font-size: calc(7vw + 7vh);
+        }
+        
+        .ms-digit {
+            font-size: calc(5vw + 5vh);
+        }
+        
+        /* Media queries dla telefonów */
+        @media (max-width: 768px) and (orientation: portrait) {
             .clock-wrapper {
-                padding: 10px;
+                padding: 5px;
             }
             
             .clock-container {
-                padding: 15px 20px;
-                gap: 1px;
+                padding: 10px 15px;
+                border-radius: 10px;
+                transform: scale(0.95);
             }
             
-            .led-digit {
-                font-size: calc(12vw + 8vh);
+            .digit {
+                font-size: calc(10vw + 6vh);
             }
             
             .separator {
-                font-size: calc(10vw + 6vh);
+                font-size: calc(9vw + 5vh);
+                margin: 0 3px;
+            }
+            
+            .ms-digit {
+                font-size: calc(7vw + 4vh);
+            }
+            
+            .segment-digit {
+                width: 0.7em;
+                height: 1em;
+                margin: 0 0.5px;
+            }
+            
+            .ms-segment {
+                width: 0.5em;
+                height: 0.7em;
+            }
+        }
+        
+        /* Dla telefonów w poziomie */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .digit {
+                font-size: calc(8vw + 6vh);
+            }
+            
+            .separator {
+                font-size: calc(7vw + 5vh);
+            }
+            
+            .ms-digit {
+                font-size: calc(5vw + 4vh);
+            }
+            
+            .clock-container {
+                padding: 8px 12px;
+            }
+        }
+        
+        /* Dla bardzo małych telefonów */
+        @media (max-width: 360px) {
+            .digit {
+                font-size: calc(12vw + 5vh);
+            }
+            
+            .separator {
+                font-size: calc(11vw + 4vh);
                 margin: 0 2px;
             }
             
             .ms-digit {
-                font-size: calc(6vw + 4vh);
+                font-size: calc(8vw + 3vh);
             }
-        }
-        
-        @media (max-width: 480px) {
+            
             .clock-container {
-                padding: 10px 15px;
-                border-radius: 8px;
-            }
-            
-            .segment-display {
-                padding: 3px 2px;
-                margin: 0 0.5px;
-            }
-            
-            .led-digit {
-                font-size: calc(14vw + 6vh);
-            }
-            
-            .separator {
-                font-size: calc(12vw + 4vh);
-                margin: 0 1px;
-            }
-        }
-        
-        /* Dla bardzo małych ekranów */
-        @media (max-height: 500px) {
-            .led-digit {
-                font-size: calc(15vw + 5vh);
-            }
-            
-            .separator {
-                font-size: calc(13vw + 3vh);
+                padding: 8px 10px;
             }
         }
         
         /* Dla dużych ekranów */
         @media (min-width: 1200px) {
-            .led-digit {
-                font-size: calc(8vw + 12vh);
-            }
-            
-            .separator {
+            .digit {
                 font-size: calc(6vw + 10vh);
             }
             
+            .separator {
+                font-size: calc(5vw + 9vh);
+            }
+            
+            .ms-digit {
+                font-size: calc(4vw + 7vh);
+            }
+            
             .clock-container {
-                padding: 30px 40px;
-                gap: 3px;
+                padding: 20px 30px;
+            }
+            
+            .segment-digit {
+                width: 1em;
+                height: 1.5em;
             }
         }
         
-        /* Zapewnienie pojedynczej linii */
-        .single-line {
+        /* Zabezpieczenie przed zawijaniem */
+        .no-wrap {
             display: flex;
             flex-wrap: nowrap;
             white-space: nowrap;
             overflow: visible;
         }
+        
+        /* Klasy dla skalowania */
+        .scale-wrapper {
+            transition: transform 0.2s ease-out;
+        }
     </style>
 </head>
 <body>
     <div class="clock-wrapper">
-        <div class="glow-effect"></div>
-        <div class="clock-container" id="clock">
+        <div class="outer-glow"></div>
+        <div class="clock-container scale-wrapper" id="clock">
             <div class="scan-line"></div>
-            <div class="lcd-effect"></div>
-            <div class="clock-inner single-line">
+            <div class="lcd-grid"></div>
+            <div class="clock-inner no-wrap">
                 <!-- DNI -->
-                <div class="digit-container">
-                    <div class="segment-display">
-                        <span class="led-digit" id="days-tens">0</span>
+                <div class="digit-pair">
+                    <div class="segment-digit">
+                        <div class="digit" id="days-tens">0</div>
                     </div>
-                </div>
-                <div class="digit-container">
-                    <div class="segment-display">
-                        <span class="led-digit" id="days-ones">0</span>
+                    <div class="segment-digit">
+                        <div class="digit" id="days-ones">0</div>
                     </div>
                 </div>
                 
                 <span class="separator blink">:</span>
                 
                 <!-- GODZINY -->
-                <div class="digit-container">
-                    <div class="segment-display">
-                        <span class="led-digit" id="hours-tens">0</span>
+                <div class="digit-pair">
+                    <div class="segment-digit">
+                        <div class="digit" id="hours-tens">0</div>
                     </div>
-                </div>
-                <div class="digit-container">
-                    <div class="segment-display">
-                        <span class="led-digit" id="hours-ones">0</span>
+                    <div class="segment-digit">
+                        <div class="digit" id="hours-ones">0</div>
                     </div>
                 </div>
                 
                 <span class="separator blink colon">:</span>
                 
                 <!-- MINUTY -->
-                <div class="digit-container">
-                    <div class="segment-display">
-                        <span class="led-digit" id="minutes-tens">0</span>
+                <div class="digit-pair">
+                    <div class="segment-digit">
+                        <div class="digit" id="minutes-tens">0</div>
                     </div>
-                </div>
-                <div class="digit-container">
-                    <div class="segment-display">
-                        <span class="led-digit" id="minutes-ones">0</span>
+                    <div class="segment-digit">
+                        <div class="digit" id="minutes-ones">0</div>
                     </div>
                 </div>
                 
                 <span class="separator blink">:</span>
                 
                 <!-- SEKUNDY -->
-                <div class="digit-container">
-                    <div class="segment-display">
-                        <span class="led-digit" id="seconds-tens">0</span>
+                <div class="digit-pair">
+                    <div class="segment-digit">
+                        <div class="digit" id="seconds-tens">0</div>
                     </div>
-                </div>
-                <div class="digit-container">
-                    <div class="segment-display">
-                        <span class="led-digit" id="seconds-ones">0</span>
+                    <div class="segment-digit">
+                        <div class="digit" id="seconds-ones">0</div>
                     </div>
                 </div>
                 
@@ -381,20 +460,14 @@
                 
                 <!-- MILISEKUNDY -->
                 <div class="ms-container">
-                    <div class="digit-container">
-                        <div class="segment-display">
-                            <span class="led-digit ms-digit" id="ms-hundreds">0</span>
-                        </div>
+                    <div class="ms-segment">
+                        <div class="digit ms-digit" id="ms-hundreds">0</div>
                     </div>
-                    <div class="digit-container">
-                        <div class="segment-display">
-                            <span class="led-digit ms-digit" id="ms-tens">0</span>
-                        </div>
+                    <div class="ms-segment">
+                        <div class="digit ms-digit" id="ms-tens">0</div>
                     </div>
-                    <div class="digit-container">
-                        <div class="segment-display">
-                            <span class="led-digit ms-digit" id="ms-ones">0</span>
-                        </div>
+                    <div class="ms-segment">
+                        <div class="digit ms-digit" id="ms-ones">0</div>
                     </div>
                 </div>
             </div>
@@ -406,34 +479,58 @@
         const targetDate = new Date();
         targetDate.setMonth(targetDate.getMonth() + 6);
         
-        // Funkcja do optymalnego skalowania
-        function optimizeSize() {
+        // Optymalizacja dla telefonów - wykrywanie typu urządzenia
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const isPortrait = window.innerHeight > window.innerWidth;
+        
+        // Główna funkcja skalowania
+        function fitClockToScreen() {
             const clock = document.getElementById('clock');
             const wrapper = document.querySelector('.clock-wrapper');
             
             if (!clock || !wrapper) return;
             
-            const maxWidth = wrapper.clientWidth * 0.95;
-            const maxHeight = wrapper.clientHeight * 0.95;
+            const wrapperWidth = wrapper.clientWidth;
+            const wrapperHeight = wrapper.clientHeight;
             const clockWidth = clock.scrollWidth;
             const clockHeight = clock.scrollHeight;
             
-            // Oblicz skalowanie
             let scale = 1;
             
-            if (clockWidth > maxWidth || clockHeight > maxHeight) {
-                const scaleX = maxWidth / clockWidth;
-                const scaleY = maxHeight / clockHeight;
-                scale = Math.min(scaleX, scaleY);
+            // Dla telefonów w pionie - bardziej agresywne skalowanie
+            if (isMobile && isPortrait) {
+                const maxWidth = wrapperWidth * 0.85;
+                const maxHeight = wrapperHeight * 0.85;
+                
+                if (clockWidth > maxWidth || clockHeight > maxHeight) {
+                    const scaleX = maxWidth / clockWidth;
+                    const scaleY = maxHeight / clockHeight;
+                    scale = Math.min(scaleX, scaleY) * 0.95;
+                }
+            } 
+            // Dla innych urządzeń
+            else {
+                const maxWidth = wrapperWidth * 0.92;
+                const maxHeight = wrapperHeight * 0.92;
+                
+                if (clockWidth > maxWidth || clockHeight > maxHeight) {
+                    const scaleX = maxWidth / clockWidth;
+                    const scaleY = maxHeight / clockHeight;
+                    scale = Math.min(scaleX, scaleY);
+                }
             }
             
-            // Ograniczenia
-            scale = Math.min(scale, 1.5); // Maksymalne powiększenie
-            scale = Math.max(scale, 0.4); // Minimalne pomniejszenie
+            // Ograniczenia skalowania
+            scale = Math.min(scale, 1.3); // Maksymalne powiększenie
+            scale = Math.max(scale, 0.5); // Minimalne pomniejszenie
             
-            // Zaokrąglij i zastosuj
+            // Zaokrąglij dla płynności
             scale = Math.round(scale * 100) / 100;
+            
+            // Zastosuj skalowanie
             clock.style.transform = `scale(${scale})`;
+            
+            console.log(`Skalowanie: ${scale} (${isMobile ? 'mobile' : 'desktop'}, ${isPortrait ? 'portrait' : 'landscape'})`);
             
             return scale;
         }
@@ -479,16 +576,16 @@
             // Miganie separatorów
             const blinkOn = milliseconds < 500;
             document.querySelectorAll('.separator').forEach(sep => {
-                sep.style.opacity = blinkOn ? '1' : '0.6';
+                sep.style.opacity = blinkOn ? '1' : '0.7';
             });
         }
         
         function setAllToZero() {
-            document.querySelectorAll('.led-digit').forEach(digit => {
+            document.querySelectorAll('.digit').forEach(digit => {
                 digit.textContent = '0';
             });
             document.querySelectorAll('.separator').forEach(sep => {
-                sep.style.opacity = '0.6';
+                sep.style.opacity = '0.7';
             });
         }
         
@@ -498,38 +595,39 @@
             setInterval(updateCountdown, 10);
             updateCountdown();
             
-            // Skalowanie
-            optimizeSize();
+            // Początkowe skalowanie
+            setTimeout(fitClockToScreen, 100);
             
             // Event listeners
             window.addEventListener('resize', () => {
-                setTimeout(optimizeSize, 50);
+                setTimeout(fitClockToScreen, 50);
             });
             
             window.addEventListener('orientationchange', () => {
                 setTimeout(() => {
-                    optimizeSize();
-                }, 200);
+                    fitClockToScreen();
+                }, 300);
             });
             
-            // Wymuś ponowną optymalizację po załadowaniu
+            // Po załadowaniu
             window.addEventListener('load', () => {
-                setTimeout(optimizeSize, 100);
-                setTimeout(optimizeSize, 500); // Podwójne sprawdzenie
+                setTimeout(fitClockToScreen, 200);
+                setTimeout(fitClockToScreen, 500);
             });
             
-            // Dodatkowe cykliczne sprawdzanie
-            setInterval(optimizeSize, 2000);
+            // Cykliczne sprawdzanie
+            setInterval(fitClockToScreen, 3000);
             
             console.log('Odliczanie zakończy się:', targetDate.toLocaleString('pl-PL'));
+            console.log('Urządzenie:', isMobile ? 'Mobile' : 'Desktop', isPortrait ? 'Portrait' : 'Landscape');
         }
         
         // Start
         init();
         
-        // Dodatkowe: dynamiczne dostosowanie po interakcji
+        // Reset przy kliknięciu (debug)
         document.addEventListener('click', () => {
-            setTimeout(optimizeSize, 100);
+            setTimeout(fitClockToScreen, 100);
         });
     </script>
 </body>
