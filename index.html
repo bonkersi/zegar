@@ -1,419 +1,183 @@
+
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Odliczanie</title>
-    <style>
-        /* RESET */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-font-smoothing: none;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        
-        body {
-            background: #000;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            font-family: 'Courier New', monospace;
-        }
-        
-        /* GŁÓWNY KONTENER */
-        .led-display {
-            display: flex;
-            align-items: center;
-            background: #0a0a0a;
-            padding: 25px 30px;
-            border-radius: 12px;
-            box-shadow: 
-                0 0 60px rgba(255, 0, 0, 0.7),
-                inset 0 0 30px rgba(0, 0, 0, 0.9);
-            border: 2px solid #222;
-            position: relative;
-            min-height: 180px;
-        }
-        
-        /* PRAWdziwe KANCIASTE CYFRY 7-SEGMENTOWE */
-        .seven-seg-digit {
-            position: relative;
-            width: 1.1em;
-            height: 1.8em;
-            margin: 0 4px;
-            background: #050505;
-            overflow: visible;
-        }
-        
-        /* KANCIASTA CYFRA - BEZ ZAOKRĄGLEŃ */
-        .segment-char {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-family: 'Courier New', monospace;
-            font-weight: 900;
-            font-size: 2.5em;
-            color: #ff0000;
-            text-shadow: 
-                0 0 15px #ff0000,
-                0 0 30px rgba(255, 0, 0, 0.8),
-                0 0 45px rgba(255, 0, 0, 0.4);
-            line-height: 1;
-            letter-spacing: 0;
-            /* WYMUSZENIE KANCIASTYCH KSZTAŁTÓW */
-            font-smooth: never;
-            -webkit-font-smoothing: none;
-            -moz-osx-font-smoothing: none;
-            text-rendering: geometricPrecision;
-            /* SPŁASZCZENIE dla efektu LED */
-            transform: translate(-50%, -50%) scaleY(1.15);
-        }
-        
-        /* PARY CYFR */
-        .digit-pair {
-            display: flex;
-            margin: 0 8px;
-        }
-        
-        /* SEPARATORY - KROPKI */
-        .separator {
-            font-family: 'Courier New', monospace;
-            font-size: 2.8em;
-            font-weight: 900;
-            color: #ff3333;
-            margin: 0 10px;
-            text-shadow: 
-                0 0 12px #ff3333,
-                0 0 25px rgba(255, 51, 51, 0.7);
-            position: relative;
-            top: -0.03em;
-        }
-        
-        /* KROPKA MILISEKUND */
-        .ms-dot {
-            font-size: 2.2em;
-            color: #cc0000;
-            margin: 0 8px;
-        }
-        
-        /* MILISEKUNDY - MNIEJSZE */
-        .ms-digit {
-            font-size: 1.8em;
-            color: #cc0000;
-            text-shadow: 
-                0 0 10px #cc0000,
-                0 0 20px rgba(204, 0, 0, 0.7);
-        }
-        
-        .ms-container {
-            display: flex;
-            margin-left: 10px;
-            align-items: center;
-        }
-        
-        /* EFEKT ŚWIECENIA WOKÓŁ CYFR */
-        .segment-glow {
-            position: absolute;
-            top: -3px;
-            left: -3px;
-            right: -3px;
-            bottom: -3px;
-            background: rgba(255, 0, 0, 0.1);
-            border-radius: 2px;
-            z-index: -1;
-            filter: blur(4px);
-        }
-        
-        /* RESPONSYWNOŚĆ */
-        @media (max-width: 768px) {
-            .led-display {
-                padding: 20px 25px;
-                transform: scale(0.95);
-            }
-            
-            .seven-seg-digit {
-                width: 0.9em;
-                height: 1.5em;
-                margin: 0 3px;
-            }
-            
-            .segment-char {
-                font-size: 2em;
-            }
-            
-            .separator {
-                font-size: 2.2em;
-                margin: 0 8px;
-            }
-            
-            .ms-digit {
-                font-size: 1.5em;
-            }
-            
-            .ms-dot {
-                font-size: 1.8em;
-                margin: 0 6px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .led-display {
-                padding: 15px 20px;
-                transform: scale(0.9);
-            }
-            
-            .seven-seg-digit {
-                width: 0.8em;
-                height: 1.3em;
-                margin: 0 2px;
-            }
-            
-            .segment-char {
-                font-size: 1.8em;
-            }
-            
-            .separator {
-                font-size: 2em;
-                margin: 0 6px;
-            }
-            
-            .ms-digit {
-                font-size: 1.3em;
-            }
-            
-            .ms-dot {
-                font-size: 1.6em;
-                margin: 0 5px;
-            }
-        }
-        
-        @media (max-width: 360px) {
-            .led-display {
-                transform: scale(0.85);
-                padding: 12px 18px;
-            }
-            
-            .segment-char {
-                font-size: 1.6em;
-            }
-            
-            .separator {
-                font-size: 1.8em;
-            }
-        }
-        
-        /* KONTENER ZEWNĘTRZNY */
-        .display-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-            padding: 20px;
-        }
-        
-        /* ANIMACJA MIGANIA */
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.7; }
-        }
-        
-        .blink {
-            animation: blink 1s infinite;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Odliczanie 7‑segment LED</title>
+<style>
+body{
+    background:#000;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+    font-family:monospace;
+}
+.display-wrapper{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    width:100%;
+    height:100%;
+}
+.led-display{
+    display:flex;
+    align-items:center;
+    background:#0a0a0a;
+    padding:25px 30px;
+    border-radius:12px;
+    border:2px solid #222;
+    box-shadow:0 0 40px rgba(255,0,0,0.6);
+}
+.digit{
+    position:relative;
+    width:40px;
+    height:70px;
+    margin:0 6px;
+}
+.seg{
+    position:absolute;
+    background:#300;
+}
+.on{
+    background:#f00;
+    box-shadow:0 0 12px #f00;
+}
+.seg.a{ top:0; left:5px; right:5px; height:10px; }
+.seg.d{ top:30px; left:5px; right:5px; height:10px; }
+.seg.g{ bottom:0; left:5px; right:5px; height:10px; }
+.seg.b{ top:5px; right:0; width:10px; height:30px; }
+.seg.c{ bottom:5px; right:0; width:10px; height:30px; }
+.seg.e{ bottom:5px; left:0; width:10px; height:30px; }
+.seg.f{ top:5px; left:0; width:10px; height:30px; }
+
+.separator{
+    color:#f33;
+    font-size:48px;
+    margin:0 12px;
+    text-shadow:0 0 14px #f33;
+}
+.ms-dot{
+    font-size:38px;
+    margin:0 8px;
+    color:#c00;
+}
+</style>
 </head>
 <body>
-    <div class="display-wrapper">
-        <div class="led-display" id="display">
-            <!-- DNI -->
-            <div class="digit-pair">
-                <div class="seven-seg-digit">
-                    <div class="segment-glow"></div>
-                    <div class="segment-char" id="d1">8</div>
-                </div>
-                <div class="seven-seg-digit">
-                    <div class="segment-glow"></div>
-                    <div class="segment-char" id="d2">8</div>
-                </div>
-            </div>
-            
-            <div class="separator">:</div>
-            
-            <!-- GODZINY -->
-            <div class="digit-pair">
-                <div class="seven-seg-digit">
-                    <div class="segment-glow"></div>
-                    <div class="segment-char" id="h1">8</div>
-                </div>
-                <div class="seven-seg-digit">
-                    <div class="segment-glow"></div>
-                    <div class="segment-char" id="h2">8</div>
-                </div>
-            </div>
-            
-            <div class="separator">:</div>
-            
-            <!-- MINUTY -->
-            <div class="digit-pair">
-                <div class="seven-seg-digit">
-                    <div class="segment-glow"></div>
-                    <div class="segment-char" id="m1">8</div>
-                </div>
-                <div class="seven-seg-digit">
-                    <div class="segment-glow"></div>
-                    <div class="segment-char" id="m2">8</div>
-                </div>
-            </div>
-            
-            <div class="separator">:</div>
-            
-            <!-- SEKUNDY -->
-            <div class="digit-pair">
-                <div class="seven-seg-digit">
-                    <div class="segment-glow"></div>
-                    <div class="segment-char" id="s1">8</div>
-                </div>
-                <div class="seven-seg-digit">
-                    <div class="segment-glow"></div>
-                    <div class="segment-char" id="s2">8</div>
-                </div>
-            </div>
-            
-            <div class="separator ms-dot">.</div>
-            
-            <!-- MILISEKUNDY -->
-            <div class="ms-container">
-                <div class="seven-seg-digit">
-                    <div class="segment-glow"></div>
-                    <div class="segment-char ms-digit" id="ms1">8</div>
-                </div>
-                <div class="seven-seg-digit">
-                    <div class="segment-glow"></div>
-                    <div class="segment-char ms-digit" id="ms2">8</div>
-                </div>
-                <div class="seven-seg-digit">
-                    <div class="segment-glow"></div>
-                    <div class="segment-char ms-digit" id="ms3">8</div>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="display-wrapper">
+<div class="led-display" id="display">
+    <div class="digit" id="d1"></div>
+    <div class="digit" id="d2"></div>
 
-    <script>
-        // Ustaw odliczanie na 6 miesięcy
-        const targetDate = new Date();
-        targetDate.setMonth(targetDate.getMonth() + 6);
-        
-        // Funkcja skalowania
-        function scaleDisplay() {
-            const display = document.getElementById('display');
-            const wrapper = document.querySelector('.display-wrapper');
-            
-            if (!display || !wrapper) return;
-            
-            const maxWidth = wrapper.clientWidth * 0.96;
-            const displayWidth = display.scrollWidth;
-            
-            let scale = 1;
-            if (displayWidth > maxWidth) {
-                scale = maxWidth / displayWidth;
-            }
-            
-            // Ograniczenia
-            scale = Math.min(scale, 1.1);
-            scale = Math.max(scale, 0.7);
-            
-            display.style.transform = `scale(${scale})`;
-            return scale;
-        }
-        
-        // Główna funkcja odliczania
-        function updateTimer() {
-            const now = Date.now();
-            const timeLeft = targetDate - now;
-            
-            if (timeLeft <= 0) {
-                showAllEights();
-                return;
-            }
-            
-            // Obliczenia
-            const totalSeconds = Math.floor(timeLeft / 1000);
-            const days = Math.floor(totalSeconds / (3600 * 24));
-            const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
-            const seconds = totalSeconds % 60;
-            const ms = Math.floor(timeLeft % 1000);
-            
-            // Formatowanie
-            const pad = (num, length) => num.toString().padStart(length, '0');
-            
-            const daysStr = pad(days, 2);
-            const hoursStr = pad(hours, 2);
-            const minutesStr = pad(minutes, 2);
-            const secondsStr = pad(seconds, 2);
-            const msStr = pad(ms, 3);
-            
-            // Aktualizacja
-            document.getElementById('d1').textContent = daysStr[0];
-            document.getElementById('d2').textContent = daysStr[1];
-            document.getElementById('h1').textContent = hoursStr[0];
-            document.getElementById('h2').textContent = hoursStr[1];
-            document.getElementById('m1').textContent = minutesStr[0];
-            document.getElementById('m2').textContent = minutesStr[1];
-            document.getElementById('s1').textContent = secondsStr[0];
-            document.getElementById('s2').textContent = secondsStr[1];
-            document.getElementById('ms1').textContent = msStr[0];
-            document.getElementById('ms2').textContent = msStr[1];
-            document.getElementById('ms3').textContent = msStr[2];
-            
-            // Miganie separatorów
-            const separators = document.querySelectorAll('.separator');
-            const blink = ms < 500;
-            separators.forEach(sep => {
-                sep.style.opacity = blink ? '1' : '0.7';
-            });
-        }
-        
-        function showAllEights() {
-            document.querySelectorAll('.segment-char').forEach(digit => {
-                digit.textContent = '8';
-            });
-            document.querySelectorAll('.separator').forEach(sep => {
-                sep.style.opacity = '1';
-            });
-        }
-        
-        // Inicjalizacja
-        function init() {
-            setInterval(updateTimer, 10);
-            updateTimer();
-            
-            setTimeout(scaleDisplay, 100);
-            
-            window.addEventListener('resize', () => {
-                setTimeout(scaleDisplay, 100);
-            });
-            
-            window.addEventListener('orientationchange', () => {
-                setTimeout(scaleDisplay, 300);
-            });
-            
-            window.addEventListener('load', () => {
-                setTimeout(scaleDisplay, 200);
-                setTimeout(scaleDisplay, 500);
-            });
-            
-            console.log('Odliczanie aktywno do:', targetDate.toLocaleString('pl-PL'));
-        }
-        
-        init();
-    </script>
+    <div class="separator">:</div>
+
+    <div class="digit" id="h1"></div>
+    <div class="digit" id="h2"></div>
+
+    <div class="separator">:</div>
+
+    <div class="digit" id="m1"></div>
+    <div class="digit" id="m2"></div>
+
+    <div class="separator">:</div>
+
+    <div class="digit" id="s1"></div>
+    <div class="digit" id="s2"></div>
+
+    <div class="ms-dot">.</div>
+
+    <div class="digit" id="ms1"></div>
+    <div class="digit" id="ms2"></div>
+    <div class="digit" id="ms3"></div>
+</div>
+</div>
+
+<script>
+// Segment map
+const map = {
+    '0': ['a','b','c','e','f','g'],
+    '1': ['b','c'],
+    '2': ['a','b','d','e','g'],
+    '3': ['a','b','c','d','g'],
+    '4': ['b','c','f','d'],
+    '5': ['a','c','d','f','g'],
+    '6': ['a','c','d','e','f','g'],
+    '7': ['a','b','c'],
+    '8': ['a','b','c','d','e','f','g'],
+    '9': ['a','b','c','d','f','g']
+};
+
+function buildDigits(){
+    document.querySelectorAll('.digit').forEach(d=>{
+        ['a','b','c','d','e','f','g'].forEach(s=>{
+            const seg=document.createElement('div');
+            seg.className='seg '+s;
+            d.appendChild(seg);
+        });
+    });
+}
+
+function setDigit(id, num){
+    const el = document.getElementById(id);
+    if(!el) return;
+    const segs = el.querySelectorAll('.seg');
+    segs.forEach(s=>s.classList.remove('on'));
+    map[num].forEach(s=>{
+        el.querySelector('.'+s).classList.add('on');
+    });
+}
+
+// countdown target
+const targetDate = new Date();
+targetDate.setMonth(targetDate.getMonth() + 6);
+
+function updateTimer(){
+    const now = Date.now();
+    const diff = targetDate - now;
+
+    if(diff <= 0){
+        document.querySelectorAll('.digit').forEach(d=>setDigit(d.id,'8'));
+        return;
+    }
+
+    const totalSeconds = Math.floor(diff/1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400)/3600);
+    const minutes = Math.floor((totalSeconds % 3600)/60);
+    const seconds = totalSeconds % 60;
+    const ms = diff % 1000;
+
+    const pad = (n,l)=>String(n).padStart(l,'0');
+
+    const d = pad(days,2);
+    const h = pad(hours,2);
+    const m = pad(minutes,2);
+    const s = pad(seconds,2);
+    const ms3 = pad(ms,3);
+
+    setDigit("d1", d[0]);
+    setDigit("d2", d[1]);
+
+    setDigit("h1", h[0]);
+    setDigit("h2", h[1]);
+
+    setDigit("m1", m[0]);
+    setDigit("m2", m[1]);
+
+    setDigit("s1", s[0]);
+    setDigit("s2", s[1]);
+
+    setDigit("ms1", ms3[0]);
+    setDigit("ms2", ms3[1]);
+    setDigit("ms3", ms3[2]);
+}
+
+buildDigits();
+setInterval(updateTimer, 30);
+updateTimer();
+</script>
 </body>
 </html>
