@@ -2,402 +2,189 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Odliczanie</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --digit-color: #ff0000;
-            --digit-glow: rgba(255, 0, 0, 0.8);
-            --bg-color: #000000;
-        }
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: var(--bg-color);
         }
         
         body {
+            background: #000;
+            color: #f00;
+            font-family: 'Courier New', monospace;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Share Tech Mono', monospace;
-            color: var(--digit-color);
-            padding: 0;
-            margin: 0;
+            overflow: hidden;
         }
         
-        .clock-wrapper {
-            width: 100%;
-            height: 100%;
+        .clock {
             display: flex;
-            justify-content: center;
             align-items: center;
-            position: relative;
+            background: #111;
             padding: 20px;
-        }
-        
-        .clock-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 2px;
-            background: #0a0a0a;
-            padding: 20px 25px;
             border-radius: 10px;
-            box-shadow: 
-                0 0 0 2px #222,
-                0 0 50px var(--digit-glow),
-                inset 0 0 30px rgba(255, 0, 0, 0.15);
-            position: relative;
-            min-width: min-content;
-            white-space: nowrap;
-            transform-origin: center;
-            border: 1px solid #333;
+            border: 2px solid #333;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+            max-width: 95vw;
+            overflow: hidden;
         }
         
-        .digit-container {
-            display: inline-flex;
-            position: relative;
-        }
-        
-        .segment-display {
-            position: relative;
-            background: #050505;
+        .digit-box {
+            background: #000;
+            border: 1px solid #f00;
             border-radius: 4px;
             margin: 0 1px;
-            overflow: hidden;
-            min-width: 1.2em;
+            padding: 10px 5px;
+            min-width: 60px;
             text-align: center;
-            padding: 5px 3px;
-            box-shadow: 
-                inset 0 0 10px rgba(0, 0, 0, 0.8),
-                0 0 5px rgba(255, 0, 0, 0.2);
+            box-shadow: inset 0 0 10px rgba(255, 0, 0, 0.2);
         }
         
-        /* WIĘKSZE CYFRY - optymalizacja */
-        .led-digit {
-            font-family: 'Share Tech Mono', monospace;
-            font-weight: 900;
-            color: var(--digit-color);
-            text-shadow: 
-                0 0 10px var(--digit-color),
-                0 0 20px var(--digit-glow),
-                0 0 30px rgba(255, 0, 0, 0.5);
-            line-height: 1;
-            position: relative;
-            display: inline-block;
-            text-align: center;
-            font-size: calc(10vw + 10vh); /* Dynamiczny rozmiar */
-            min-width: 0.7em;
+        .digit {
+            font-size: 80px;
+            font-weight: bold;
+            text-shadow: 0 0 10px #f00;
         }
         
-        /* Większe separatory */
         .separator {
-            color: #ff3333;
-            text-shadow: 0 0 10px #ff3333;
-            font-weight: 900;
-            margin: 0 3px;
-            line-height: 1;
-            opacity: 0.9;
-            font-size: calc(8vw + 8vh);
-            padding-bottom: 0.1em;
-        }
-        
-        .colon {
-            color: #cc0000;
-        }
-        
-        .dot {
-            color: #990000;
-            margin: 0 2px;
-        }
-        
-        /* Milisekundy - większe ale trochę mniejsze niż główne cyfry */
-        .ms-container {
-            display: inline-flex;
-            gap: 1px;
-            margin-left: 3px;
-            align-items: flex-end;
+            font-size: 80px;
+            margin: 0 5px;
+            color: #f00;
+            text-shadow: 0 0 10px #f00;
         }
         
         .ms-digit {
-            color: #cc0000;
-            text-shadow: 0 0 8px #cc0000;
-            font-size: calc(5vw + 5vh);
+            font-size: 60px;
+            color: #c00;
         }
         
-        /* Segment display effect */
-        .led-digit::before {
-            content: '';
-            position: absolute;
-            top: 15%;
-            left: 10%;
-            right: 10%;
-            bottom: 15%;
-            background: linear-gradient(
-                to bottom,
-                rgba(255, 0, 0, 0.1) 0%,
-                rgba(255, 0, 0, 0.05) 50%,
-                rgba(255, 0, 0, 0.1) 100%
-            );
-            border-radius: 2px;
-            pointer-events: none;
-            z-index: 0;
+        .ms-box {
+            min-width: 45px;
+            padding: 10px 3px;
         }
         
-        /* Glowing effect */
-        .glow-effect {
-            position: absolute;
-            top: -5px;
-            left: -5px;
-            right: -5px;
-            bottom: -5px;
-            background: radial-gradient(
-                ellipse at center,
-                rgba(255, 0, 0, 0.2) 0%,
-                transparent 70%
-            );
-            border-radius: 15px;
-            z-index: -1;
-            filter: blur(10px);
-        }
-        
-        /* LCD effect */
-        .lcd-effect {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                repeating-linear-gradient(
-                    0deg,
-                    rgba(255, 255, 255, 0.03) 0px,
-                    rgba(255, 255, 255, 0.03) 1px,
-                    transparent 1px,
-                    transparent 2px
-                ),
-                repeating-linear-gradient(
-                    90deg,
-                    rgba(255, 255, 255, 0.02) 0px,
-                    rgba(255, 255, 255, 0.02) 1px,
-                    transparent 1px,
-                    transparent 3px
-                );
-            pointer-events: none;
-            z-index: 1;
-            border-radius: 10px;
-            opacity: 0.5;
-        }
-        
-        /* Scan line */
-        .scan-line {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(
-                to right,
-                transparent,
-                rgba(255, 0, 0, 0.4),
-                transparent
-            );
-            animation: scan 3s linear infinite;
-            z-index: 2;
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-        }
-        
-        @keyframes scan {
-            0% { top: 0; }
-            100% { top: 100%; }
-        }
-        
-        /* Nowe: Kontener wewnętrzny dla lepszego wyśrodkowania */
-        .clock-inner {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            z-index: 3;
-        }
-        
-        /* Media queries dla lepszego skalowania */
         @media (max-width: 768px) {
-            .clock-wrapper {
-                padding: 10px;
-            }
-            
-            .clock-container {
-                padding: 15px 20px;
-                gap: 1px;
-            }
-            
-            .led-digit {
-                font-size: calc(12vw + 8vh);
+            .digit {
+                font-size: 40px;
             }
             
             .separator {
-                font-size: calc(10vw + 6vh);
-                margin: 0 2px;
+                font-size: 40px;
             }
             
             .ms-digit {
-                font-size: calc(6vw + 4vh);
+                font-size: 30px;
+            }
+            
+            .digit-box {
+                min-width: 40px;
+                padding: 8px 3px;
+            }
+            
+            .ms-box {
+                min-width: 30px;
+                padding: 8px 2px;
+            }
+            
+            .clock {
+                padding: 15px;
+                transform: scale(0.9);
             }
         }
         
         @media (max-width: 480px) {
-            .clock-container {
-                padding: 10px 15px;
-                border-radius: 8px;
-            }
-            
-            .segment-display {
-                padding: 3px 2px;
-                margin: 0 0.5px;
-            }
-            
-            .led-digit {
-                font-size: calc(14vw + 6vh);
+            .digit {
+                font-size: 30px;
             }
             
             .separator {
-                font-size: calc(12vw + 4vh);
-                margin: 0 1px;
+                font-size: 30px;
+                margin: 0 3px;
+            }
+            
+            .ms-digit {
+                font-size: 22px;
+            }
+            
+            .digit-box {
+                min-width: 30px;
+                padding: 6px 2px;
+            }
+            
+            .ms-box {
+                min-width: 22px;
+                padding: 6px 1px;
+            }
+            
+            .clock {
+                padding: 10px;
+                transform: scale(0.85);
             }
         }
         
-        /* Dla bardzo małych ekranów */
-        @media (max-height: 500px) {
-            .led-digit {
-                font-size: calc(15vw + 5vh);
+        @media (max-width: 320px) {
+            .clock {
+                transform: scale(0.75);
             }
-            
-            .separator {
-                font-size: calc(13vw + 3vh);
-            }
-        }
-        
-        /* Dla dużych ekranów */
-        @media (min-width: 1200px) {
-            .led-digit {
-                font-size: calc(8vw + 12vh);
-            }
-            
-            .separator {
-                font-size: calc(6vw + 10vh);
-            }
-            
-            .clock-container {
-                padding: 30px 40px;
-                gap: 3px;
-            }
-        }
-        
-        /* Zapewnienie pojedynczej linii */
-        .single-line {
-            display: flex;
-            flex-wrap: nowrap;
-            white-space: nowrap;
-            overflow: visible;
         }
     </style>
 </head>
 <body>
-    <div class="clock-wrapper">
-        <div class="glow-effect"></div>
-        <div class="clock-container" id="clock">
-            <div class="scan-line"></div>
-            <div class="lcd-effect"></div>
-            <div class="clock-inner single-line">
-                <!-- DNI -->
-                <div class="digit-container">
-                    <div class="segment-display">
-                        <span class="led-digit" id="days-tens">0</span>
-                    </div>
-                </div>
-                <div class="digit-container">
-                    <div class="segment-display">
-                        <span class="led-digit" id="days-ones">0</span>
-                    </div>
-                </div>
-                
-                <span class="separator blink">:</span>
-                
-                <!-- GODZINY -->
-                <div class="digit-container">
-                    <div class="segment-display">
-                        <span class="led-digit" id="hours-tens">0</span>
-                    </div>
-                </div>
-                <div class="digit-container">
-                    <div class="segment-display">
-                        <span class="led-digit" id="hours-ones">0</span>
-                    </div>
-                </div>
-                
-                <span class="separator blink colon">:</span>
-                
-                <!-- MINUTY -->
-                <div class="digit-container">
-                    <div class="segment-display">
-                        <span class="led-digit" id="minutes-tens">0</span>
-                    </div>
-                </div>
-                <div class="digit-container">
-                    <div class="segment-display">
-                        <span class="led-digit" id="minutes-ones">0</span>
-                    </div>
-                </div>
-                
-                <span class="separator blink">:</span>
-                
-                <!-- SEKUNDY -->
-                <div class="digit-container">
-                    <div class="segment-display">
-                        <span class="led-digit" id="seconds-tens">0</span>
-                    </div>
-                </div>
-                <div class="digit-container">
-                    <div class="segment-display">
-                        <span class="led-digit" id="seconds-ones">0</span>
-                    </div>
-                </div>
-                
-                <span class="separator dot blink">.</span>
-                
-                <!-- MILISEKUNDY -->
-                <div class="ms-container">
-                    <div class="digit-container">
-                        <div class="segment-display">
-                            <span class="led-digit ms-digit" id="ms-hundreds">0</span>
-                        </div>
-                    </div>
-                    <div class="digit-container">
-                        <div class="segment-display">
-                            <span class="led-digit ms-digit" id="ms-tens">0</span>
-                        </div>
-                    </div>
-                    <div class="digit-container">
-                        <div class="segment-display">
-                            <span class="led-digit ms-digit" id="ms-ones">0</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="clock">
+        <!-- Dni -->
+        <div class="digit-box">
+            <span class="digit" id="d1">0</span>
+        </div>
+        <div class="digit-box">
+            <span class="digit" id="d2">0</span>
+        </div>
+        
+        <span class="separator">:</span>
+        
+        <!-- Godziny -->
+        <div class="digit-box">
+            <span class="digit" id="h1">0</span>
+        </div>
+        <div class="digit-box">
+            <span class="digit" id="h2">0</span>
+        </div>
+        
+        <span class="separator">:</span>
+        
+        <!-- Minuty -->
+        <div class="digit-box">
+            <span class="digit" id="m1">0</span>
+        </div>
+        <div class="digit-box">
+            <span class="digit" id="m2">0</span>
+        </div>
+        
+        <span class="separator">:</span>
+        
+        <!-- Sekundy -->
+        <div class="digit-box">
+            <span class="digit" id="s1">0</span>
+        </div>
+        <div class="digit-box">
+            <span class="digit" id="s2">0</span>
+        </div>
+        
+        <span class="separator">.</span>
+        
+        <!-- Milisekundy -->
+        <div class="digit-box ms-box">
+            <span class="digit ms-digit" id="ms1">0</span>
+        </div>
+        <div class="digit-box ms-box">
+            <span class="digit ms-digit" id="ms2">0</span>
+        </div>
+        <div class="digit-box ms-box">
+            <span class="digit ms-digit" id="ms3">0</span>
         </div>
     </div>
 
@@ -406,131 +193,83 @@
         const targetDate = new Date();
         targetDate.setMonth(targetDate.getMonth() + 6);
         
-        // Funkcja do optymalnego skalowania
-        function optimizeSize() {
-            const clock = document.getElementById('clock');
-            const wrapper = document.querySelector('.clock-wrapper');
+        function updateClock() {
+            const now = new Date();
+            const diff = targetDate - now;
             
-            if (!clock || !wrapper) return;
-            
-            const maxWidth = wrapper.clientWidth * 0.95;
-            const maxHeight = wrapper.clientHeight * 0.95;
-            const clockWidth = clock.scrollWidth;
-            const clockHeight = clock.scrollHeight;
-            
-            // Oblicz skalowanie
-            let scale = 1;
-            
-            if (clockWidth > maxWidth || clockHeight > maxHeight) {
-                const scaleX = maxWidth / clockWidth;
-                const scaleY = maxHeight / clockHeight;
-                scale = Math.min(scaleX, scaleY);
-            }
-            
-            // Ograniczenia
-            scale = Math.min(scale, 1.5); // Maksymalne powiększenie
-            scale = Math.max(scale, 0.4); // Minimalne pomniejszenie
-            
-            // Zaokrąglij i zastosuj
-            scale = Math.round(scale * 100) / 100;
-            clock.style.transform = `scale(${scale})`;
-            
-            return scale;
-        }
-        
-        // Funkcja odliczania
-        function updateCountdown() {
-            const now = Date.now();
-            const timeLeft = targetDate.getTime() - now;
-            
-            if (timeLeft <= 0) {
-                setAllToZero();
+            if (diff <= 0) {
+                setZero();
                 return;
             }
             
-            // Obliczenia
-            const totalSeconds = Math.floor(timeLeft / 1000);
-            const days = Math.floor(totalSeconds / (3600 * 24));
-            const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
-            const seconds = totalSeconds % 60;
-            const milliseconds = timeLeft % 1000;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            const ms = Math.floor(diff % 1000);
             
-            // Formatowanie
             const daysStr = days.toString().padStart(2, '0');
             const hoursStr = hours.toString().padStart(2, '0');
             const minutesStr = minutes.toString().padStart(2, '0');
             const secondsStr = seconds.toString().padStart(2, '0');
-            const msStr = Math.floor(milliseconds).toString().padStart(3, '0');
+            const msStr = ms.toString().padStart(3, '0');
             
-            // Aktualizacja
-            document.getElementById('days-tens').textContent = daysStr[0];
-            document.getElementById('days-ones').textContent = daysStr[1];
-            document.getElementById('hours-tens').textContent = hoursStr[0];
-            document.getElementById('hours-ones').textContent = hoursStr[1];
-            document.getElementById('minutes-tens').textContent = minutesStr[0];
-            document.getElementById('minutes-ones').textContent = minutesStr[1];
-            document.getElementById('seconds-tens').textContent = secondsStr[0];
-            document.getElementById('seconds-ones').textContent = secondsStr[1];
-            document.getElementById('ms-hundreds').textContent = msStr[0];
-            document.getElementById('ms-tens').textContent = msStr[1];
-            document.getElementById('ms-ones').textContent = msStr[2];
+            // Dni
+            document.getElementById('d1').textContent = daysStr[0];
+            document.getElementById('d2').textContent = daysStr[1];
+            
+            // Godziny
+            document.getElementById('h1').textContent = hoursStr[0];
+            document.getElementById('h2').textContent = hoursStr[1];
+            
+            // Minuty
+            document.getElementById('m1').textContent = minutesStr[0];
+            document.getElementById('m2').textContent = minutesStr[1];
+            
+            // Sekundy
+            document.getElementById('s1').textContent = secondsStr[0];
+            document.getElementById('s2').textContent = secondsStr[1];
+            
+            // Milisekundy
+            document.getElementById('ms1').textContent = msStr[0];
+            document.getElementById('ms2').textContent = msStr[1];
+            document.getElementById('ms3').textContent = msStr[2];
             
             // Miganie separatorów
-            const blinkOn = milliseconds < 500;
-            document.querySelectorAll('.separator').forEach(sep => {
-                sep.style.opacity = blinkOn ? '1' : '0.6';
+            const separators = document.querySelectorAll('.separator');
+            separators.forEach(sep => {
+                sep.style.opacity = ms < 500 ? '1' : '0.5';
             });
         }
         
-        function setAllToZero() {
-            document.querySelectorAll('.led-digit').forEach(digit => {
-                digit.textContent = '0';
-            });
-            document.querySelectorAll('.separator').forEach(sep => {
-                sep.style.opacity = '0.6';
-            });
-        }
-        
-        // Inicjalizacja
-        function init() {
-            // Odliczanie
-            setInterval(updateCountdown, 10);
-            updateCountdown();
-            
-            // Skalowanie
-            optimizeSize();
-            
-            // Event listeners
-            window.addEventListener('resize', () => {
-                setTimeout(optimizeSize, 50);
-            });
-            
-            window.addEventListener('orientationchange', () => {
-                setTimeout(() => {
-                    optimizeSize();
-                }, 200);
-            });
-            
-            // Wymuś ponowną optymalizację po załadowaniu
-            window.addEventListener('load', () => {
-                setTimeout(optimizeSize, 100);
-                setTimeout(optimizeSize, 500); // Podwójne sprawdzenie
-            });
-            
-            // Dodatkowe cykliczne sprawdzanie
-            setInterval(optimizeSize, 2000);
-            
-            console.log('Odliczanie zakończy się:', targetDate.toLocaleString('pl-PL'));
+        function setZero() {
+            document.querySelectorAll('.digit').forEach(d => d.textContent = '0');
+            document.querySelectorAll('.separator').forEach(s => s.style.opacity = '0.5');
         }
         
         // Start
-        init();
+        setInterval(updateClock, 10);
+        updateClock();
         
-        // Dodatkowe: dynamiczne dostosowanie po interakcji
-        document.addEventListener('click', () => {
-            setTimeout(optimizeSize, 100);
-        });
+        // Dostosowanie rozmiaru
+        function adjustSize() {
+            const clock = document.querySelector('.clock');
+            const body = document.body;
+            
+            if (clock.scrollWidth > body.clientWidth * 0.95) {
+                const scale = (body.clientWidth * 0.95) / clock.scrollWidth;
+                clock.style.transform = `scale(${Math.max(scale, 0.5)})`;
+            } else {
+                clock.style.transform = 'scale(1)';
+            }
+        }
+        
+        window.addEventListener('resize', adjustSize);
+        window.addEventListener('load', adjustSize);
+        adjustSize();
+        
+        console.log('Odliczanie startuje...');
+        console.log('Koniec:', targetDate.toLocaleString());
     </script>
 </body>
 </html>
